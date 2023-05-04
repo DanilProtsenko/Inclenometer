@@ -80,7 +80,7 @@ static float32_t X;
 static float32_t Y;
 static float32_t Z;
 
-static uint8_t data_rx[4] = {0};
+//static uint8_t data_rx[4] = {0};
 static uint8_t data_m[4]={0};
 
 typedef struct Incl_Data{
@@ -229,33 +229,34 @@ int main(void)
 //    }
 
     for(uint32_t i = 0; i < N; i++){
-    temp[0] = (filter_x(Data_spi(&hincl1, hincl1.Read_ANG_X, 1))/ 16384.0f)* 90.0f;
-    temp[1] = (filter_y(Data_spi(&hincl1, hincl1.Read_ANG_Y, 1))/ 16384.0f)* 90.0f;
-    temp[2] = (filter_z(Data_spi(&hincl1,hincl1.Read_ANG_Z, 1))/ 16384.0f)* 90.0f;
+    temp[0] = ((float)filter_x(Data_spi(&hincl1, hincl1.Read_ANG_X, 1))/ 16384.0f)* 90.0f;
+    temp[1] = ((float)filter_y(Data_spi(&hincl1, hincl1.Read_ANG_Y, 1))/ 16384.0f)* 90.0f;
+    temp[2] = ((float)filter_z(Data_spi(&hincl1,hincl1.Read_ANG_Z, 1))/ 16384.0f)* 90.0f;
     }
        
     for(uint32_t i = 0; i < 3; i++){
     angl[i] = temp[i];
-    anglmm[i] = tan(gra_to_rad(temp[i])) * 1600;
+    anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
     }
     
-    g[0] = Data_spi(&hincl1, hincl1.Read_ACC_X, 1) / 6000.0f;
-    g[1] = Data_spi(&hincl1, hincl1.Read_ACC_Y, 1) / 6000.0f;
-    g[2] = Data_spi(&hincl1, hincl1.Read_ACC_Z, 1) / 6000.0f;
+//    g[0] = (Data_spi(&hincl1, hincl1.Read_ACC_X, 1) / 6000.0f);
+//    g[1] = (Data_spi(&hincl1, hincl1.Read_ACC_Y, 1) / 6000.0f);
+//    g[2] = (Data_spi(&hincl1, hincl1.Read_ACC_Z, 1) / 6000.0f);
     
-    point[1] = 0 - g[1];
-    
+//    point[0] = (atan2(g[0], 0.1) * 180.0f/3.1415926535f);
 //    point2[0] = tan(gra_to_rad(angl[0]));
 //    point2[1] = tan(gra_to_rad(angl[0])) * tan(gra_to_rad(angl[1]));
 //    point2[2] = tan(gra_to_rad(angl[0])) * tan(gra_to_rad(angl[1]))*tan(gra_to_rad(angl[2]));
 
 //    
-//    point[0] = g[0]*(cos(gra_to_rad(0)) * cos(gra_to_rad(angl[1]))) + 
-//    g[1]*(-sin(gra_to_rad(angl[1]))*cos(gra_to_rad(0))) + 
-//    g[2]*sin(gra_to_rad(0));
+//    point[0] = acos(cos)
+    
+//    point[1] = (cos(gra_to_rad(angl[1])) - sin(gra_to_rad(angl[1])));
+//    point[0] = atan2f(1,sqrt(point[1]*point[1]+point[2]*point[2])) * 180.0f/3.1415926535f;
+    
+//     
 //    
-//    
-////    point[0] = tan(gra_to_rad(angl[0]))*(cos(gra_to_rad(angl[1])) * cos(gra_to_rad(angl[2])));
+//    point[0] = tan(gra_to_rad(angl[0]))*(cos(gra_to_rad(angl[1])) * cos(gra_to_rad(angl[2])));
 ////    
 //    point[1] = g[0]*((sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*cos(gra_to_rad(angl[2]))+sin(gra_to_rad(angl[2]))*cos(gra_to_rad(angl[0]))) +
 //    g[1]*(-sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*sin(gra_to_rad(angl[2]))+cos(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[2])))+
@@ -268,14 +269,14 @@ int main(void)
 //    point[1] = (sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*cos(gra_to_rad(angl[2])));
 //    point[2] = tan(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[2]));
     
-//    angl1[0] = (atan2(g[0]*sin(gra_to_rad(angl[0])),g[1]*cos(gra_to_rad(angl[1])))* 180.0f/3.1415926535f);
+//    angl1[0] = (atan2(sin(gra_to_rad(angl[0])),point[0] )* 180.0f/3.1415926535f);
 //      angl1[0] = (atan2(sin(gra_to_rad(angl[0])), point[0])* 180.0f/3.1415926535f);
 //      angl1[0] = (asin(sin(gra_to_rad(angl[0])))* 180.0f/3.1415926535f);
 
 //    angl1[1] = (atan(point[0]/point[1]) * 180.0f/3.1415926535f);
 //    angl1[2] = (atan(point[1]/point[2]) * 180.0f/3.1415926535f);
 //    angl1[2] = a(fabs(point[0]*1 + point[1]*1 + point[2] * 0)/(sqrt(point[2]*point[2]+point[1]*point[1]+point[0]*point[0])*sqrt(1+1+1))) * 180.0f/3.1415926535f;
-    angl1[2] = atan2(point[0],sqrt(point[2]*point[2]+point[1]*point[1]));
+//    angl1[2] = atan2(point[0],sqrt(point[2]*point[2]+point[1]*point[1]));
     
 //    angl1[1] = asin(fabs(point[0]*0 + point[1]*1 + point[2] * 1)/(sqrt(point[2]*point[2]+point[1]*point[1]+point[0]*point[0])*sqrt(0+1+1))) * 180.0f/3.1415926535f;
     
@@ -446,6 +447,7 @@ uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms){
   
   uint16_t temp;
   uint8_t  data_tx[4];
+  uint8_t data_rx[4];
   
   data_tx[3] = (command & 0xFF);
   data_tx[2] = (command>>8) & 0xFF;
@@ -455,11 +457,11 @@ uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms){
   if ((command == hincl->Read_ANG_X) || (command == hincl->Read_ANG_Y) || (command == hincl->Read_ANG_Z)){
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0xffff);
+      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0x100);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
       HAL_Delay(delay_ms);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0xffff);
+      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0x100);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
       HAL_Delay(delay_ms);
       
@@ -469,11 +471,11 @@ uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms){
   }else if((command == hincl->Read_ACC_X) || (command == hincl->Read_ACC_Y) || (command == hincl->Read_ACC_Z)){
      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0xffff);
+      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0x100);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
       HAL_Delay(delay_ms);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0xffff);
+      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0x100);
       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
       HAL_Delay(delay_ms);
       
@@ -483,12 +485,9 @@ uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms){
    } else {
      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-       HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0xffff);
+       HAL_SPI_Transmit(&hspi1, data_tx, 4, 0xffff);
        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
        HAL_Delay(delay_ms);
-        
-       temp = (data_rx[1] << 8) + data_rx[2];
-       return temp;
      }
    }
    
