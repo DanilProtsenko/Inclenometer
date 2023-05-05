@@ -25,6 +25,9 @@
 #include "stdint.h"
 #include "math.h"
 #include "arm_math.h"
+
+#include "incl.h"
+
 /* USER CODE END Includes */
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -33,11 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define LENGTH_SAMPLES 320
-#define BLOCK_SIZE 320
-#define NUM_TAPS 320
-#define NUM_BLOCKS LENGTH_SAMPLES/BLOCK_SIZE
-#define N 120
+#define N 32
 #define gra_to_rad(a) a * 3.1415926535f /180.0f
 /* USER CODE END PD */
 
@@ -80,71 +79,10 @@ static float32_t X;
 static float32_t Y;
 static float32_t Z;
 
+static uint8_t CRCSPI;
+
 //static uint8_t data_rx[4] = {0};
 static uint8_t data_m[4]={0};
-
-typedef struct Incl_Data{
-  uint32_t Read_ACC_X;
-  uint32_t Read_ACC_Y;
-  uint32_t Read_ACC_Z;
-  uint32_t Read_STO;
-  uint32_t Enable_ANGLE_outputs;
-  uint32_t Read_ANG_X ;
-  uint32_t Read_ANG_Y;
-  uint32_t Read_ANG_Z;
-  uint32_t Read_Temperature;
-  uint32_t Read_Status_Summary;
-  uint32_t Read_ERR_FLAG1;
-  uint32_t Read_ERR_FLAG2;
-  uint32_t Read_CMD;
-  uint32_t Change_to_mode_1; 
-  uint32_t Change_to_mode_2; 
-  uint32_t Change_to_mode_3; 
-  uint32_t Change_to_mode_4; 
-  uint32_t Set_power_down_mode; 
-  uint32_t Wake_up_from_power_down_mode; 
-  uint32_t SW_Reset; 
-  uint32_t Read_WHOAMI; 
-  uint32_t Read_SERIAL1; 
-  uint32_t Read_SERIAL2;
-  uint32_t Read_current_bank;
-  uint32_t Switch_to_bank_0;
-  uint32_t Switch_to_bank_1;
-} sIncl;
-
-static sIncl hincl1 = {
-  0x040000F7,
-  0x080000FD,
-  0x0C0000FB,
-  0x100000E9,
-  0xB0001F6F,
-  0x240000C7,
-  0x280000CD,
-  0x2C0000CB,
-  0x140000EF,
-  0x180000E5,
-  0x1C0000E3,
-  0x200000C1,
-  0x340000DF,
-  0xB400001F,
-  0xB4000102,
-  0xB4000225,
-  0xB4000338,
-  0xB400046B,
-  0xB400001F,
-  0xB4002098,
-  0x40000091,
-  0x640000A7,
-  0x680000AD,
-  0x7C0000B3,
-  0xFC000073,
-  0xFC00016E
-};
-
-//static arm_fir_instance_q15 firStruct;
-//static arm_fir_instance_f32 firStructFloat;
-
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -152,13 +90,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-uint8_t CalculateCRC(uint32_t Data);
-static uint8_t CRC8(uint8_t BitValue, uint8_t CRCSPI);
-void Spi_init(void);
-//static void delay_temp(uint32_t t);
-uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms);
-void movAverage(void);
-void movAverageFloat(void);
+
 uint16_t filter_x(uint16_t x);
 uint16_t filter_z(uint16_t x);
 uint16_t filter_y(uint16_t x);
@@ -210,7 +142,8 @@ int main(void)
 //  for(uint32_t i = 0; i < NUM_TAPS; i++){
 //     firCoeffsFloat[i] = 1.0f/(NUM_TAPS+1.0f); 
 //    }
-  Spi_init();
+  Incl_init();
+  
   while (1)
   {
 
@@ -228,59 +161,16 @@ int main(void)
 //      anglx[i] = tan(dataOutputFloat[i] * 3.1415926535 /180.0f) * 1600;
 //    }
 
-    for(uint32_t i = 0; i < N; i++){
-    temp[0] = ((float)filter_x(Data_spi(&hincl1, hincl1.Read_ANG_X, 1))/ 16384.0f)* 90.0f;
-    temp[1] = ((float)filter_y(Data_spi(&hincl1, hincl1.Read_ANG_Y, 1))/ 16384.0f)* 90.0f;
-    temp[2] = ((float)filter_z(Data_spi(&hincl1,hincl1.Read_ANG_Z, 1))/ 16384.0f)* 90.0f;
-    }
+    temp[0] = ((float)filter_x(Incl_Data_SPI(INCL_READ_ANG_X, 1))/ 16384.0f)* 90.0f;
+    temp[1] = ((float)filter_y(Incl_Data_SPI(INCL_READ_ANG_Y, 1))/ 16384.0f)* 90.0f;
+    temp[2] = ((float)filter_z(Incl_Data_SPI(INCL_READ_ANG_Z, 1))/ 16384.0f)* 90.0f;
        
     for(uint32_t i = 0; i < 3; i++){
     angl[i] = temp[i];
     anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
     }
     
-//    g[0] = (Data_spi(&hincl1, hincl1.Read_ACC_X, 1) / 6000.0f);
-//    g[1] = (Data_spi(&hincl1, hincl1.Read_ACC_Y, 1) / 6000.0f);
-//    g[2] = (Data_spi(&hincl1, hincl1.Read_ACC_Z, 1) / 6000.0f);
     
-//    point[0] = (atan2(g[0], 0.1) * 180.0f/3.1415926535f);
-//    point2[0] = tan(gra_to_rad(angl[0]));
-//    point2[1] = tan(gra_to_rad(angl[0])) * tan(gra_to_rad(angl[1]));
-//    point2[2] = tan(gra_to_rad(angl[0])) * tan(gra_to_rad(angl[1]))*tan(gra_to_rad(angl[2]));
-
-//    
-//    point[0] = acos(cos)
-    
-//    point[1] = (cos(gra_to_rad(angl[1])) - sin(gra_to_rad(angl[1])));
-//    point[0] = atan2f(1,sqrt(point[1]*point[1]+point[2]*point[2])) * 180.0f/3.1415926535f;
-    
-//     
-//    
-//    point[0] = tan(gra_to_rad(angl[0]))*(cos(gra_to_rad(angl[1])) * cos(gra_to_rad(angl[2])));
-////    
-//    point[1] = g[0]*((sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*cos(gra_to_rad(angl[2]))+sin(gra_to_rad(angl[2]))*cos(gra_to_rad(angl[0]))) +
-//    g[1]*(-sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*sin(gra_to_rad(angl[2]))+cos(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[2])))+
-//    g[2]*(-sin(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[1]))));
-////    
-//    point[2] = g[0]*(sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[2]))+(-sin(gra_to_rad(angl[1]))*cos(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[2])))) +
-//    g[1]*(sin(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[2]))+(sin(gra_to_rad(angl[1]))*sin(gra_to_rad(angl[2]))*cos(gra_to_rad(angl[0]))))+
-//    g[2]*(cos(gra_to_rad(angl[0]))*cos(gra_to_rad(angl[1])));
-//    
-//    point[1] = (sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[1]))*cos(gra_to_rad(angl[2])));
-//    point[2] = tan(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[0]))*sin(gra_to_rad(angl[2]));
-    
-//    angl1[0] = (atan2(sin(gra_to_rad(angl[0])),point[0] )* 180.0f/3.1415926535f);
-//      angl1[0] = (atan2(sin(gra_to_rad(angl[0])), point[0])* 180.0f/3.1415926535f);
-//      angl1[0] = (asin(sin(gra_to_rad(angl[0])))* 180.0f/3.1415926535f);
-
-//    angl1[1] = (atan(point[0]/point[1]) * 180.0f/3.1415926535f);
-//    angl1[2] = (atan(point[1]/point[2]) * 180.0f/3.1415926535f);
-//    angl1[2] = a(fabs(point[0]*1 + point[1]*1 + point[2] * 0)/(sqrt(point[2]*point[2]+point[1]*point[1]+point[0]*point[0])*sqrt(1+1+1))) * 180.0f/3.1415926535f;
-//    angl1[2] = atan2(point[0],sqrt(point[2]*point[2]+point[1]*point[1]));
-    
-//    angl1[1] = asin(fabs(point[0]*0 + point[1]*1 + point[2] * 1)/(sqrt(point[2]*point[2]+point[1]*point[1]+point[0]*point[0])*sqrt(0+1+1))) * 180.0f/3.1415926535f;
-    
-//    angl1[0] = angl[0]+ angl1[2];
     
   }
   /* USER CODE END 3 */
@@ -341,7 +231,7 @@ void SystemClock_Config(void)
   */
 static void MX_SPI1_Init(void)
 {
-
+  
   /* USER CODE BEGIN SPI1_Init 0 */
 
   /* USER CODE END SPI1_Init 0 */
@@ -400,142 +290,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-uint8_t CalculateCRC(uint32_t Data)
-{
-  uint8_t BitIndex;
-  uint8_t BitValue;
-  uint8_t CRCSPI;
-  CRCSPI = 0xFF;
-  for (BitIndex = 31; BitIndex > 7; BitIndex--)
-  {
-  BitValue = (uint8_t)((Data >> BitIndex) & 0x01);
-  CRCSPI = CRC8(BitValue, CRCSPI);
-  }
-  CRCSPI = (uint8_t)~CRCSPI;
-  return CRCSPI;
-}
-static uint8_t CRC8(uint8_t BitValue, uint8_t CRCSPI)
-{
-  uint8_t Temp;
-  Temp = (uint8_t)(CRCSPI& 0x80);
-  if (BitValue == 0x01)
-  {
-  Temp ^= 0x80;
-  }
-  CRCSPI <<= 1;
-  if (Temp > 0)
-  {
-  CRCSPI ^= 0x1D;
-  }
-  return CRCSPI;
-}
-
 //***************************
 //***************************
-
-//static void delay_temp(uint32_t t){
-//  uint32_t i; 
-//  for(i = 0; i<t*128000; i++){
-//    __NOP();
-//    }
-//}
-
-//***************************
-//***************************
-
-uint16_t Data_spi(sIncl* hincl, uint32_t command, uint32_t delay_ms){
-  
-  uint16_t temp;
-  uint8_t  data_tx[4];
-  uint8_t data_rx[4];
-  
-  data_tx[3] = (command & 0xFF);
-  data_tx[2] = (command>>8) & 0xFF;
-  data_tx[1] = (command>>16) & 0xFF;
-  data_tx[0] = (command>>24) & 0xFF;
-  
-  if ((command == hincl->Read_ANG_X) || (command == hincl->Read_ANG_Y) || (command == hincl->Read_ANG_Z)){
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0x100);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-      HAL_Delay(delay_ms);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0x100);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-      HAL_Delay(delay_ms);
-      
-      temp = (data_rx[1] << 8) + data_rx[2];
-      return temp;
-    }
-  }else if((command == hincl->Read_ACC_X) || (command == hincl->Read_ACC_Y) || (command == hincl->Read_ACC_Z)){
-     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_Transmit(&hspi1, data_tx, 4, 0x100);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-      HAL_Delay(delay_ms);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-      HAL_SPI_TransmitReceive(&hspi1, data_tx, data_rx, 4, 0x100);
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-      HAL_Delay(delay_ms);
-      
-      temp = (data_rx[1] << 8) + data_rx[2];
-      return temp;
-     }
-   } else {
-     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
-       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-       HAL_SPI_Transmit(&hspi1, data_tx, 4, 0xffff);
-       HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-       HAL_Delay(delay_ms);
-     }
-   }
-   
-   }
-  
-//***************************
-//***************************
-
-void Spi_init(void){
-  //выход из спящего режима
-  Data_spi(&hincl1, hincl1.Wake_up_from_power_down_mode, 1);
-  //Сброс настроек по умолчанию
-  Data_spi(&hincl1, hincl1.SW_Reset, 1);
-  //выбор режима
-  Data_spi(&hincl1, hincl1.Change_to_mode_1, 1);
-  //включить измерения
-  Data_spi(&hincl1, hincl1.Enable_ANGLE_outputs, 25);
-  //прочитать статус
-  Data_spi(&hincl1, hincl1.Read_Status_Summary, 1);
-  Data_spi(&hincl1, hincl1.Read_Status_Summary, 1);
-}
-
-//***************************
-//***************************
-
-//void movAverage(void){
-//  q15_t *input, *output;
-//  uint32_t i;
-//  
-//  input = &dataInput[0];
-//  output = &dataOutput[0];
-//  
-//  for(i = 0; i < NUM_BLOCKS; i++){
-//    arm_fir_q15(&firStruct, input + (i * BLOCK_SIZE), output + (i * BLOCK_SIZE), BLOCK_SIZE);
-//  }
-//}
-
-//void movAverageFloat(void){
-//  float32_t *input, *output;
-//  uint32_t i;
-//  
-//  input = &dataInputFloat[0];
-//  output = &dataOutputFloat[0];
-//  
-//  for(i = 0; i < NUM_BLOCKS; i++){
-//    arm_fir_f32(&firStructFloat, input + (i * BLOCK_SIZE), output + (i * BLOCK_SIZE), BLOCK_SIZE);
-//  }
-//}
 
 uint16_t filter_x(uint16_t x)
 {

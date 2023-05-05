@@ -22,12 +22,46 @@ Dialog DLL:      TCM.DLL V1.48.0.0
  
 <h2>Project:</h2>
 C:\Users\protsenko\Desktop\STM32_Projects\Inclenometr\MDK-ARM\Inclenometr.uvprojx
-Project File Date:  05/04/2023
+Project File Date:  05/05/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Inclenometr'
-"Inclenometr\Inclenometr.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+../Core/Src/main.c(64): warning:  #177-D: variable "angl1"  was declared but never referenced
+  static float32_t angl1[3];
+../Core/Src/main.c(65): warning:  #550-D: variable "anglmm"  was set but never used
+  static float32_t anglmm[3];
+../Core/Src/main.c(67): warning:  #177-D: variable "g"  was declared but never referenced
+  static float32_t g[3];
+../Core/Src/main.c(69): warning:  #177-D: variable "point"  was declared but never referenced
+  static float32_t point[3];
+../Core/Src/main.c(70): warning:  #177-D: variable "point2"  was declared but never referenced
+  static float32_t point2[3];
+../Core/Src/main.c(74): warning:  #177-D: variable "tempx2"  was declared but never referenced
+  static float32_t tempx2;
+../Core/Src/main.c(75): warning:  #177-D: variable "tempz2"  was declared but never referenced
+  static float32_t tempz2;
+../Core/Src/main.c(76): warning:  #177-D: variable "tempy2"  was declared but never referenced
+  static float32_t tempy2;
+../Core/Src/main.c(78): warning:  #177-D: variable "X"  was declared but never referenced
+  static float32_t X;
+../Core/Src/main.c(79): warning:  #177-D: variable "Y"  was declared but never referenced
+  static float32_t Y;
+../Core/Src/main.c(80): warning:  #177-D: variable "Z"  was declared but never referenced
+  static float32_t Z;
+../Core/Src/main.c(82): warning:  #177-D: variable "CRCSPI"  was declared but never referenced
+  static uint8_t CRCSPI;
+../Core/Src/main.c(85): warning:  #177-D: variable "data_m"  was declared but never referenced
+  static uint8_t data_m[4]={0};
+../Core/Src/main.c: 13 warnings, 0 errors
+linking...
+Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf4, instruction is within an IT block and is not the last instruction for log.o(i.__hardfp_log).
+Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf0, instruction is within an IT block and is not the last instruction for log_x.o(i.____hardfp_log$lsc).
+Program Size: Code=21608 RO-data=792 RW-data=44 ZI-data=2156  
+Finished: 0 information, 2 warning and 0 error messages.
+FromELF: creating hex file...
+"Inclenometr\Inclenometr.axf" - 0 Error(s), 15 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -57,40 +91,40 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:DSP:Source:1.10.0
       Include file:  CMSIS\DSP\Include\arm_math.h
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctions.c
-      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctions.c
       Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_common_tables_f16.h
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctions.c
       Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctions.c
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_common_tables.h
-      Source file:   CMSIS\DSP\Source\CommonTables\CommonTablesF16.c
       Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctionsF16.c
       Source file:   CMSIS\DSP\Source\CommonTables\CommonTables.c
-      Include file:  CMSIS\DSP\Include\arm_const_structs.h
-      Source file:   CMSIS\DSP\Source\QuaternionMathFunctions\QuaternionMathFunctions.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctions.c
-      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_math_f16.h
-      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctions.c
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctions.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctions.c
+      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c
+      Include file:  CMSIS\DSP\Include\arm_common_tables_f16.h
+      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctions.c
       Include file:  CMSIS\DSP\Include\arm_const_structs_f16.h
       Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctions.c
-      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c
+      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctions.c
+      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctions.c
+      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctionsF16.c
+      Include file:  CMSIS\DSP\Include\arm_math_f16.h
+      Include file:  CMSIS\DSP\Include\arm_common_tables.h
+      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctions.c
+      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctions.c
       Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\CommonTables\CommonTablesF16.c
+      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctions.c
+      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctionsF16.c
+      Include file:  CMSIS\DSP\Include\arm_const_structs.h
+      Source file:   CMSIS\DSP\Source\QuaternionMathFunctions\QuaternionMathFunctions.c
+      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctions.c
+      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctions.c
+      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctions.c
+      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c
       Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctionsF16.c
       Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctionsF16.c
-Build Time Elapsed:  00:00:00
+      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctionsF16.c
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>
