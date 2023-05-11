@@ -29,6 +29,7 @@
 #include "incl.h"
 
 /* USER CODE END Includes */
+
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
@@ -36,7 +37,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define N 32
 #define gra_to_rad(a) a * 3.1415926535f /180.0f
 /* USER CODE END PD */
 
@@ -79,6 +79,8 @@ static float32_t X;
 static float32_t Y;
 static float32_t Z;
 
+static uint8_t data_tx[4];
+
 static uint8_t CRCSPI;
 
 //static uint8_t data_rx[4] = {0};
@@ -91,9 +93,9 @@ static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
-uint16_t filter_x(uint16_t x);
-uint16_t filter_z(uint16_t x);
-uint16_t filter_y(uint16_t x);
+//uint16_t filter_x(uint16_t x);
+//uint16_t filter_z(uint16_t x);
+//uint16_t filter_y(uint16_t x);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -129,48 +131,27 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-//  sIncl* s;
-//  uint32_t i = s->Read_ACC_X ;
+
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
   
   /* USER CODE END 2 */
-  
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  arm_fir_init_q15(&firStruct, NUM_TAPS, &firCoeffs[0], &firState[0], BLOCK_SIZE);
-//  arm_fir_init_f32(&firStructFloat, NUM_TAPS, &firCoeffsFloat[0], &firStateFloat[0], BLOCK_SIZE);
-//  for(uint32_t i = 0; i < NUM_TAPS; i++){
-//     firCoeffsFloat[i] = 1.0f/(NUM_TAPS+1.0f); 
-//    }
+
   Incl_init();
-  
+
   while (1)
   {
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//    for(uint32_t i = 0; i < LENGTH_SAMPLES; i++){
-//      dataInputFloat[i] = Data_spi(0x240000C7);
-//    }
-//    delay_temp(20000);
-//    movAverageFloat();
-//    for(uint32_t i = 0; i < LENGTH_SAMPLES; i++){
-//      //anglx[i] = (dataOutputFloat[i] / 16384.0f) * 90.0f;
-//      //anglx1[i] = ((float)dataInput[i] / 16384.0f) * 90.0f;
-//      anglx[i] = tan(dataOutputFloat[i] * 3.1415926535 /180.0f) * 1600;
-//    }
-
-    temp[0] = ((float)filter_x(Incl_Data_SPI(INCL_READ_ANG_X, 1))/ 16384.0f)* 90.0f;
-    temp[1] = ((float)filter_y(Incl_Data_SPI(INCL_READ_ANG_Y, 1))/ 16384.0f)* 90.0f;
-    temp[2] = ((float)filter_z(Incl_Data_SPI(INCL_READ_ANG_Z, 1))/ 16384.0f)* 90.0f;
-       
+    
+    Incl_Data_ANGL(angl);
     for(uint32_t i = 0; i < 3; i++){
-    angl[i] = temp[i];
     anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
     }
-    
-    
     
   }
   /* USER CODE END 3 */
@@ -231,7 +212,7 @@ void SystemClock_Config(void)
   */
 static void MX_SPI1_Init(void)
 {
-  
+
   /* USER CODE BEGIN SPI1_Init 0 */
 
   /* USER CODE END SPI1_Init 0 */
@@ -293,44 +274,7 @@ static void MX_GPIO_Init(void)
 //***************************
 //***************************
 
-uint16_t filter_x(uint16_t x)
-{
-  static uint32_t n;
-  static uint32_t m[N];
-  static uint32_t y;
-  y +=x-m[n];
-  m[n]=x;
-  n=(n+1)%N;
-  
-  return y/N;
-  
-}
 
-uint16_t filter_z(uint16_t x)
-{
-  static uint32_t n;
-  static uint32_t m[N];
-  static uint32_t y;
-  y +=x-m[n];
-  m[n]=x;
-  n=(n+1)%N;
-  
-  return y/N;
-  
-}
-
-uint16_t filter_y(uint16_t x)
-{
-  static uint32_t n;
-  static uint32_t m[N];
-  static uint32_t y;
-  y +=x-m[n];
-  m[n]=x;
-  n=(n+1)%N;
-  
-  return y/N;
-  
-}
 //***************************
 //***************************
 

@@ -32,6 +32,8 @@
 #define INCL_SWITCH_TO_BANK_0     0xFC000073
 #define INCL_SWITCH_TO_BANK_1     0xFC00016E
 
+#define N 64
+
 
 typedef struct Incl_Data{
  
@@ -48,8 +50,17 @@ extern uint8_t Error_CRC;
 
 uint16_t Incl_Data_SPI(uint32_t command, uint32_t delay_ms);
 void Incl_init(void);
-uint8_t CalculateCRC(uint32_t Data);
+uint8_t calculate_crc(uint32_t Data);
 static uint8_t CRC8(uint8_t BitValue, uint8_t CRCSPI);
 
+void check_crc(uint8_t* data_rx, uint8_t* data_tx);
+
+void Incl_Data_ANGL(float32_t* angls_buff);
+
+void parse_command(uint8_t* buffer, uint32_t buffer_size, uint8_t* command);
+
+int16_t filter_x(int16_t x);
+int16_t filter_z(int16_t x);
+int16_t filter_y(int16_t x);
 
 #endif /* INCL_H_ */

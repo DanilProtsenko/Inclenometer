@@ -1,9 +1,9 @@
 --cpu=Cortex-M4.fp.sp --branchpatch=sdcomp-29491-629360
 "inclenometr\startup_stm32l476xx.o"
+"inclenometr\incl.o"
 "inclenometr\main.o"
 "inclenometr\stm32l4xx_it.o"
 "inclenometr\stm32l4xx_hal_msp.o"
-"inclenometr\incl.o"
 "inclenometr\stm32l4xx_hal_spi.o"
 "inclenometr\stm32l4xx_hal_spi_ex.o"
 "inclenometr\stm32l4xx_hal.o"
