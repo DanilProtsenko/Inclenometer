@@ -50,41 +50,14 @@ SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
-//static q15_t dataInput[LENGTH_SAMPLES];
-//static q15_t dataOutput[LENGTH_SAMPLES];
-//static q15_t firState[BLOCK_SIZE+NUM_TAPS];
-//static q15_t firCoeffs[NUM_TAPS];
-
-//static float32_t firCoeffsFloat[NUM_TAPS];
-//static float32_t dataOutputFloat[LENGTH_SAMPLES];
-//static float32_t dataInputFloat[LENGTH_SAMPLES];
-//static float32_t firStateFloat[BLOCK_SIZE+NUM_TAPS];
-
-static float32_t angl[3];
-static float32_t angl1[3];
+static float32_t angl[6];
+static float32_t angl2[3];
 static float32_t anglmm[3];
-
-static float32_t g[3];
-
-static float32_t point[3];
-static float32_t point2[3];
-
-static float32_t temp[3];
-
-static float32_t tempx2;
-static float32_t tempz2;
-static float32_t tempy2;
 
 static float32_t X;
 static float32_t Y;
 static float32_t Z;
 
-static uint8_t data_tx[4];
-
-static uint8_t CRCSPI;
-
-//static uint8_t data_rx[4] = {0};
-static uint8_t data_m[4]={0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,7 +113,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   Incl_init();
-
+  
   while (1)
   {
 
@@ -152,6 +125,10 @@ int main(void)
     for(uint32_t i = 0; i < 3; i++){
     anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
     }
+    
+    angl2[0] = angl[0] - atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)));
+    angl2[1] = angl[1] - atan2f(angl[4],sqrtf(powf(angl[3],2)+powf(angl[5],2)));
+    angl2[2] = angl[2] - atan2f(angl[5],sqrtf(powf(angl[3],2)+powf(angl[4],2)));
     
   }
   /* USER CODE END 3 */

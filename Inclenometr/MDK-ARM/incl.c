@@ -9,8 +9,7 @@ uint16_t Incl_Data_SPI(uint32_t command, uint32_t delay_ms){
   uint8_t data_rx[4] = {0};
   uint16_t temp;
 
-  uint32_t tempDataCRC;
-  uint8_t INCLCRCSPI;
+//  uint32_t tempDataCRC;
   
 //  data_tx[3] = (command & 0xFF);
 //  data_tx[2] = (command>>8) & 0xFF;
@@ -64,6 +63,7 @@ void Incl_init(void){
   Incl_Data_SPI(INCL_ENABLE_ANGL_OUTPUTS, 25);
   //прочитать статус
   Incl_Data_SPI(INCL_READ_STATUS, 1);
+  
   Incl_Data_SPI(INCL_READ_STATUS, 1);
 }
 
@@ -114,13 +114,29 @@ void Incl_Data_ANGL(float32_t* angls_buff){
   uint8_t data_rx_y[4];
   uint8_t data_rx_z[4];
   
+  uint8_t data_tx_Gx[4];
+  uint8_t data_tx_Gy[4];
+  uint8_t data_tx_Gz[4];
+  
+  uint8_t data_rx_Gx[4];
+  uint8_t data_rx_Gy[4];
+  uint8_t data_rx_Gz[4];
+  
   uint32_t tx_comm_x = INCL_READ_ANG_X;
   uint32_t tx_comm_y = INCL_READ_ANG_Y;
   uint32_t tx_comm_z = INCL_READ_ANG_Z;
   
+  uint32_t tx_comm_Gx = INCL_READ_ACC_X;
+  uint32_t tx_comm_Gy = INCL_READ_ACC_Y;
+  uint32_t tx_comm_Gz = INCL_READ_ACC_Z;
+  
   parse_command(data_tx_x,4,(uint8_t*)&tx_comm_x);
   parse_command(data_tx_y,4,(uint8_t*)&tx_comm_y);
   parse_command(data_tx_z,4,(uint8_t*)&tx_comm_z);
+  
+  parse_command(data_tx_Gx,4,(uint8_t*)&tx_comm_Gx);
+  parse_command(data_tx_Gy,4,(uint8_t*)&tx_comm_Gy);
+  parse_command(data_tx_Gz,4,(uint8_t*)&tx_comm_Gz);
   
   if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
     
@@ -144,17 +160,36 @@ void Incl_Data_ANGL(float32_t* angls_buff){
 //    check_crc(data_rx_y, data_tx_y);
     
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    HAL_SPI_Receive(&hspi1,data_rx_z, 4, 0xffff);
+    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gx, data_rx_z, 4, 0xffff);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
     HAL_Delay(1);
     
 //    check_crc(data_rx_z, data_tx_z);
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gy, data_rx_Gx, 4, 0xffff);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+    HAL_Delay(1);
+    
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gz, data_rx_Gy, 4, 0xffff);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+    HAL_Delay(1);
+    
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_SPI_Receive(&hspi1,data_rx_Gz, 4, 0xffff);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+    HAL_Delay(1);
     
   }
   
     angls_buff[0] = ((float32_t)filter_x((data_rx_x[1] << 8) + data_rx_x[2])/ 16384.0f)* 90.0f;
     angls_buff[1] = ((float32_t)filter_y((data_rx_y[1] << 8) + data_rx_y[2])/ 16384.0f)* 90.0f;
     angls_buff[2] = ((float32_t)filter_z((data_rx_z[1] << 8) + data_rx_z[2])/ 16384.0f)* 90.0f;
+  
+    angls_buff[3] = (float32_t)filter_Gx((data_rx_Gx[1] << 8) + data_rx_Gx[2])/ 12000;
+    angls_buff[4] = (float32_t)filter_Gy((data_rx_Gy[1] << 8) + data_rx_Gy[2])/ 12000;
+    angls_buff[5] = (float32_t)filter_Gz((data_rx_Gz[1] << 8) + data_rx_Gz[2])/ 12000;
   
 }
 
@@ -206,7 +241,6 @@ int16_t filter_z(int16_t x)
   n=(n+1)%N;
   
   return y/N;
-  
 }
 
 int16_t filter_y(int16_t x)
@@ -219,7 +253,42 @@ int16_t filter_y(int16_t x)
   n=(n+1)%N;
   
   return y/N;
+}
+
+int16_t filter_Gx(int16_t x)
+{
+  static uint32_t n;
+  static int32_t m[N];
+  static int32_t y;
+  y +=x-m[n];
+  m[n]=x;
+  n=(n+1)%N;
   
+  return y/N;
+}
+
+int16_t filter_Gz(int16_t x)
+{
+  static uint32_t n;
+  static int32_t m[N];
+  static int32_t y;
+  y +=x-m[n];
+  m[n]=x;
+  n=(n+1)%N;
+  
+  return y/N;
+}
+
+int16_t filter_Gy(int16_t x)
+{
+  static uint32_t n;
+  static int32_t m[N];
+  static int32_t y;
+  y +=x-m[n];
+  m[n]=x;
+  n=(n+1)%N;
+  
+  return y/N;
 }
 
 

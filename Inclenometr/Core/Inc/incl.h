@@ -63,4 +63,8 @@ int16_t filter_x(int16_t x);
 int16_t filter_z(int16_t x);
 int16_t filter_y(int16_t x);
 
+int16_t filter_Gx(int16_t x);
+int16_t filter_Gy(int16_t x);
+int16_t filter_Gz(int16_t x);
+
 #endif /* INCL_H_ */
