@@ -22,30 +22,22 @@ Dialog DLL:      TCM.DLL V1.48.0.0
  
 <h2>Project:</h2>
 C:\Users\protsenko\Desktop\STM32_Projects\Inclenometr\MDK-ARM\Inclenometr.uvprojx
-Project File Date:  05/11/2023
+Project File Date:  05/15/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Inclenometr'
-compiling main.c...
-../Core/Src/main.c(54): warning:  #550-D: variable "angl2"  was set but never used
-  static float32_t angl2[3];
-../Core/Src/main.c(55): warning:  #550-D: variable "anglmm"  was set but never used
-  static float32_t anglmm[3];
-../Core/Src/main.c(57): warning:  #177-D: variable "X"  was declared but never referenced
-  static float32_t X;
-../Core/Src/main.c(58): warning:  #177-D: variable "Y"  was declared but never referenced
-  static float32_t Y;
-../Core/Src/main.c(59): warning:  #177-D: variable "Z"  was declared but never referenced
-  static float32_t Z;
-../Core/Src/main.c: 5 warnings, 0 errors
+compiling incl.c...
+incl.c(52): warning:  #940-D: missing return statement at end of non-void function "Incl_Data_SPI" 
+  }
+incl.c: 1 warning, 0 errors
 linking...
 Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf4, instruction is within an IT block and is not the last instruction for log.o(i.__hardfp_log).
 Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf0, instruction is within an IT block and is not the last instruction for log_x.o(i.____hardfp_log$lsc).
-Program Size: Code=24820 RO-data=1116 RW-data=64 ZI-data=3320  
+Program Size: Code=34580 RO-data=6780 RW-data=64 ZI-data=3344  
 Finished: 0 information, 2 warning and 0 error messages.
 FromELF: creating hex file...
-"Inclenometr\Inclenometr.axf" - 0 Error(s), 7 Warning(s).
+"Inclenometr\Inclenometr.axf" - 0 Error(s), 3 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -75,38 +67,38 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:DSP:Source:1.10.0
       Include file:  CMSIS\DSP\Include\arm_math.h
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctions.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctions.c
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctions.c
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctionsF16.c
-      Include file:  CMSIS\DSP\Include\arm_common_tables_f16.h
-      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctionsF16.c
-      Include file:  CMSIS\DSP\Include\arm_const_structs_f16.h
-      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctions.c
-      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_const_structs.h
-      Source file:   CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c
-      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctions.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctions.c
-      Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctions.c
-      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctions.c
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\CommonTables\CommonTablesF16.c
-      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctionsF16.c
-      Include file:  CMSIS\DSP\Include\arm_common_tables.h
-      Source file:   CMSIS\DSP\Source\QuaternionMathFunctions\QuaternionMathFunctions.c
-      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctions.c
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctions.c
-      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\CommonTables\CommonTables.c
       Include file:  CMSIS\DSP\Include\arm_math_f16.h
-      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctionsF16.c
+      Include file:  CMSIS\DSP\Include\arm_common_tables.h
+      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctions.c
+      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctions.c
+      Source file:   CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c
+      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctions.c
+      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctionsF16.c
+      Include file:  CMSIS\DSP\Include\arm_const_structs.h
+      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c
+      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctions.c
+      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctions.c
       Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctionsF16.c
+      Include file:  CMSIS\DSP\Include\arm_common_tables_f16.h
+      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctions.c
+      Include file:  CMSIS\DSP\Include\arm_const_structs_f16.h
+      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctions.c
+      Source file:   CMSIS\DSP\Source\CommonTables\CommonTablesF16.c
+      Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctions.c
+      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctionsF16.c
+      Source file:   CMSIS\DSP\Source\QuaternionMathFunctions\QuaternionMathFunctions.c
+      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctions.c
+      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctions.c
+      Source file:   CMSIS\DSP\Source\CommonTables\CommonTables.c
+      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctions.c
       Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctionsF16.c
 Build Time Elapsed:  00:00:02
 </pre>

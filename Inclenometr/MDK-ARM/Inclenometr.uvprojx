@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L476xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;                                                  ../Drivers/STM32L4xx_HAL_Driver/Inc;                                                  ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;                                                  ../Drivers/CMSIS/Device/ST/STM32L4xx/Include;                                                  ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;                                                   ../Drivers/STM32L4xx_HAL_Driver/Inc;                                                   ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;                                                   ../Drivers/CMSIS/Device/ST/STM32L4xx/Include;                                                   ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -544,7 +544,12 @@
       <component Cclass="CMSIS" Cgroup="DSP" Cvariant="Source" Cvendor="ARM" Cversion="1.10.0" condition="CMSIS DSP">
         <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
         <targetInfos>
-          <targetInfo name="Inclenometr"/>
+          <targetInfo name="Inclenometr">
+            <c>
+              <MiscControls>--no_conditionalize</MiscControls>
+              <Optim>4</Optim>
+            </c>
+          </targetInfo>
         </targetInfos>
       </component>
     </components>

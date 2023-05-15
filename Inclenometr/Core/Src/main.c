@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
-#include "math.h"
 #include "arm_math.h"
 
 #include "incl.h"
@@ -53,10 +52,13 @@ SPI_HandleTypeDef hspi1;
 static float32_t angl[6];
 static float32_t angl2[3];
 static float32_t anglmm[3];
+static float32_t comp_angl[3];
 
 static float32_t X;
 static float32_t Y;
 static float32_t Z;
+
+static float32_t compensatedAcc[3];
 
 /* USER CODE END PV */
 
@@ -124,11 +126,29 @@ int main(void)
     Incl_Data_ANGL(angl);
     for(uint32_t i = 0; i < 3; i++){
     anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
+    angl2[i] =  gra_to_rad(angl[i]);
     }
     
-    angl2[0] = angl[0] - atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)));
-    angl2[1] = angl[1] - atan2f(angl[4],sqrtf(powf(angl[3],2)+powf(angl[5],2)));
-    angl2[2] = angl[2] - atan2f(angl[5],sqrtf(powf(angl[3],2)+powf(angl[4],2)));
+//      angl2[0] = atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)))* 180.0f/3.1415926535f ;
+//    angl2[0] = atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)));
+//    angl2[1] = atan2f(angl[4],sqrtf(powf(angl[3],2)+powf(angl[5],2)));
+//    angl2[2] = atan2f(angl[5],sqrtf(powf(angl[3],2)+powf(angl[4],2)));
+    
+//    
+    compensatedAcc[0] = angl[3] * arm_cos_f32(angl2[1]) * arm_cos_f32(angl2[2])  - angl[4] * arm_sin_f32(angl2[2])*arm_cos_f32(angl2[1]) + angl[5]*arm_sin_f32(angl2[1]);
+    compensatedAcc[1] = angl[3] * ( arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[1]) * arm_cos_f32(angl2[2]) + arm_sin_f32(angl2[2]) * arm_cos_f32(angl2[0])
+    ) + angl[4] * ( -arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[1]) * arm_sin_f32(angl2[2]) + arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[2])
+    ) + angl[5] * ( -arm_sin_f32(angl2[0]) * arm_cos_f32(angl2[1])
+    );
+    compensatedAcc[2] = angl[3] * (arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[2]) - arm_sin_f32(angl2[1]) * arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[2])
+    ) + angl[4] * ( arm_sin_f32(angl2[0]) * arm_cos_f32(angl2[2]) + arm_sin_f32(angl2[1]) * arm_sin_f32(angl2[2]) * arm_cos_f32(angl2[0])
+    ) + angl[5] * ( arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[1])
+    );
+    
+    comp_angl[0] = atan2f(compensatedAcc[0],sqrtf(powf(compensatedAcc[1],2)+powf(compensatedAcc[2],2))) * 180.0f/3.1415926535f;
+    comp_angl[1] = atan2f(compensatedAcc[1],sqrtf(powf(compensatedAcc[0],2)+powf(compensatedAcc[2],2))) * 180.0f/3.1415926535f;
+    comp_angl[2] = atan2f(compensatedAcc[2],sqrtf(powf(compensatedAcc[0],2)+powf(compensatedAcc[1],2))) * 180.0f/3.1415926535f;
+//    
     
   }
   /* USER CODE END 3 */
@@ -205,7 +225,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;

@@ -140,6 +140,8 @@ void Incl_Data_ANGL(float32_t* angls_buff){
   
   if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
     
+    
+    
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     HAL_SPI_Transmit(&hspi1, data_tx_x, 4, 0xffff);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);

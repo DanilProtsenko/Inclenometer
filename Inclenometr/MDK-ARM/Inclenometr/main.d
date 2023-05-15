@@ -31,10 +31,10 @@ inclenometr\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h
 inclenometr\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h
 inclenometr\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi.h
 inclenometr\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h
-inclenometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 inclenometr\main.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\Include\arm_math.h
 inclenometr\main.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\Include\arm_math_types.h
 inclenometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+inclenometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 inclenometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
 inclenometr\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
 inclenometr\main.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\Include\arm_math_memory.h
