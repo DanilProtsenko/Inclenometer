@@ -53,12 +53,16 @@ static float32_t angl[6];
 static float32_t angl2[3];
 static float32_t anglmm[3];
 static float32_t comp_angl[3];
+static float32_t G[3];
 
 static float32_t X;
+static float32_t X_real;
+static float32_t X_real_div_X;
 static float32_t Y;
 static float32_t Z;
 
-static float32_t compensatedAcc[3];
+static float32_t povorot[2];
+static float32_t alpha;
 
 /* USER CODE END PV */
 
@@ -116,6 +120,9 @@ int main(void)
 
   Incl_init();
   
+  X_real = atan2f(1,40);
+  alpha = 0;
+  
   while (1)
   {
 
@@ -126,29 +133,15 @@ int main(void)
     Incl_Data_ANGL(angl);
     for(uint32_t i = 0; i < 3; i++){
     anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
-    angl2[i] =  gra_to_rad(angl[i]);
+    G[i] = angl[i+3];
+    angl2[i] = gra_to_rad(angl[i]-alpha);
     }
     
-//      angl2[0] = atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)))* 180.0f/3.1415926535f ;
-//    angl2[0] = atan2f(angl[3],sqrtf(powf(angl[4],2)+powf(angl[5],2)));
-//    angl2[1] = atan2f(angl[4],sqrtf(powf(angl[3],2)+powf(angl[5],2)));
-//    angl2[2] = atan2f(angl[5],sqrtf(powf(angl[3],2)+powf(angl[4],2)));
+    povorot[0] = acosf( sin(angl2[0])/sin( X_real) );
+    povorot[1] = asinf( sin(angl2[1])/sin( X_real) );
     
-//    
-    compensatedAcc[0] = angl[3] * arm_cos_f32(angl2[1]) * arm_cos_f32(angl2[2])  - angl[4] * arm_sin_f32(angl2[2])*arm_cos_f32(angl2[1]) + angl[5]*arm_sin_f32(angl2[1]);
-    compensatedAcc[1] = angl[3] * ( arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[1]) * arm_cos_f32(angl2[2]) + arm_sin_f32(angl2[2]) * arm_cos_f32(angl2[0])
-    ) + angl[4] * ( -arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[1]) * arm_sin_f32(angl2[2]) + arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[2])
-    ) + angl[5] * ( -arm_sin_f32(angl2[0]) * arm_cos_f32(angl2[1])
-    );
-    compensatedAcc[2] = angl[3] * (arm_sin_f32(angl2[0]) * arm_sin_f32(angl2[2]) - arm_sin_f32(angl2[1]) * arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[2])
-    ) + angl[4] * ( arm_sin_f32(angl2[0]) * arm_cos_f32(angl2[2]) + arm_sin_f32(angl2[1]) * arm_sin_f32(angl2[2]) * arm_cos_f32(angl2[0])
-    ) + angl[5] * ( arm_cos_f32(angl2[0]) * arm_cos_f32(angl2[1])
-    );
-    
-    comp_angl[0] = atan2f(compensatedAcc[0],sqrtf(powf(compensatedAcc[1],2)+powf(compensatedAcc[2],2))) * 180.0f/3.1415926535f;
-    comp_angl[1] = atan2f(compensatedAcc[1],sqrtf(powf(compensatedAcc[0],2)+powf(compensatedAcc[2],2))) * 180.0f/3.1415926535f;
-    comp_angl[2] = atan2f(compensatedAcc[2],sqrtf(powf(compensatedAcc[0],2)+powf(compensatedAcc[1],2))) * 180.0f/3.1415926535f;
-//    
+    X = asinf( sqrt(pow(sin(angl2[0]),2)/pow(sin(angl2[1]),2)) );
+    X_real_div_X = X_real/X;
     
   }
   /* USER CODE END 3 */

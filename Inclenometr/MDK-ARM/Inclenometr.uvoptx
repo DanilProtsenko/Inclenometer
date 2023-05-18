@@ -168,7 +168,17 @@
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
+          <ItemText>G</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
           <ItemText>comp_angl</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>compensatedAcc</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
