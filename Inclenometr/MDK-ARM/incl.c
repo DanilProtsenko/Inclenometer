@@ -162,26 +162,26 @@ void Incl_Data_ANGL(float32_t* angls_buff){
 //    check_crc(data_rx_y, data_tx_y);
     
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gx, data_rx_z, 4, 0xffff);
+    HAL_SPI_Receive(&hspi1, data_rx_z, 4, 0xffff);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
     HAL_Delay(1);
     
 //    check_crc(data_rx_z, data_tx_z);
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gy, data_rx_Gx, 4, 0xffff);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-    HAL_Delay(1);
-    
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gz, data_rx_Gy, 4, 0xffff);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-    HAL_Delay(1);
-    
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-    HAL_SPI_Receive(&hspi1,data_rx_Gz, 4, 0xffff);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
-    HAL_Delay(1);
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+//    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gy, data_rx_Gx, 4, 0xffff);
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+//    HAL_Delay(1);
+//    
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+//    HAL_SPI_TransmitReceive(&hspi1,data_tx_Gz, data_rx_Gy, 4, 0xffff);
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+//    HAL_Delay(1);
+//    
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+//    HAL_SPI_Receive(&hspi1,data_rx_Gz, 4, 0xffff);
+//    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+//    HAL_Delay(1);
     
   }
   

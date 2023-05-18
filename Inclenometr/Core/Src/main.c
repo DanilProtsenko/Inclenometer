@@ -47,22 +47,33 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 
+TIM_HandleTypeDef htim7;
+
 /* USER CODE BEGIN PV */
 
-static float32_t angl[6];
-static float32_t angl2[3];
-static float32_t anglmm[3];
-static float32_t comp_angl[3];
-static float32_t G[3];
+static float32_t angls_grad[3];
+static float32_t angls_rad[3];
+static float32_t anglsmm[3];
 
-static float32_t X;
+static float32_t X_incl;
+static float32_t X_formula;
 static float32_t X_real;
-static float32_t X_real_div_X;
-static float32_t Y;
-static float32_t Z;
+static float32_t X_real_div_X_formula;
+
+static float32_t Y_incl;
+static float32_t Y_formula;
+static float32_t Y_real;
 
 static float32_t povorot[2];
 static float32_t alpha;
+
+static volatile uint32_t pres_pc13; //Нажатие 
+static volatile uint32_t prev_pc13 = GPIO_IDR_ID13; //Предыдущее значение кнопки
+static volatile uint32_t cnt_pc13 = 0; //счетчик
+static volatile uint32_t timer_intr_counter = 0;
+static volatile uint8_t key_press_counter = 0;
+static volatile uint8_t key_press = 0;
+static volatile uint8_t* ptr_key_press = &key_press;
 
 /* USER CODE END PV */
 
@@ -70,11 +81,31 @@ static float32_t alpha;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
+static void debounce(volatile uint32_t * restrict pres_px, volatile uint32_t * restrict cnt_px, volatile uint32_t * restrict prev_px, uint32_t GPIOx_IDR);
 
-//uint16_t filter_x(uint16_t x);
-//uint16_t filter_z(uint16_t x);
-//uint16_t filter_y(uint16_t x);
+
+void 	HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
+  if(htim->Instance == TIM7){
+    TIM7 -> SR &= ~TIM_SR_UIF;
+    timer_intr_counter++;
+    debounce(&pres_pc13, &cnt_pc13, &prev_pc13, GPIOC->IDR);
+    if (pres_pc13)
+    {
+      pres_pc13 = 0;
+      key_press_counter++;
+      timer_intr_counter = 0;
+    }
+    else if(timer_intr_counter>=50 && key_press_counter != 0)
+    { 
+      *ptr_key_press = key_press_counter;
+      key_press_counter = 0;
+      timer_intr_counter = 0;
+    }
+  
+  }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -109,6 +140,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MX_TIM7_Init();
+  
+  RCC->AHB2ENR |= RCC_AHB2ENR_GPIOCEN;
+  GPIOC->MODER &= 0xF3FFFFFF;
+  GPIOC->PUPDR |= 0x04000000;
+  
+  
+  NVIC_EnableIRQ(TIM7_IRQn);
+  HAL_TIM_Base_Start_IT(&htim7);
   /* USER CODE BEGIN 2 */
 
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
@@ -130,18 +170,33 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     
-    Incl_Data_ANGL(angl);
+    Incl_Data_ANGL(angls_grad);
     for(uint32_t i = 0; i < 3; i++){
-    anglmm[i] = tan(gra_to_rad(angl[i])) * 1600;
-    G[i] = angl[i+3];
-    angl2[i] = gra_to_rad(angl[i]-alpha);
+    anglsmm[i] = tanf(gra_to_rad(angls_grad[i])) * 1600;
+    angls_rad[i] = gra_to_rad(angls_grad[i]);
     }
+//    
+//    povorot[0] = acosf( sin(angl2[0])/sin( X_real) );
+//    povorot[1] = asinf( sin(angl2[1])/sin( X_real) );
+//    
+//    X = asinf( sqrt(pow(sin(angl2[0]),2)/pow(sin(angl2[1]),2)) );
+//    X_real_div_X = X_real/X;
     
-    povorot[0] = acosf( sin(angl2[0])/sin( X_real) );
-    povorot[1] = asinf( sin(angl2[1])/sin( X_real) );
+    if (key_press >0){
+      key_press = 0;
+      
+      
+      povorot[0] = acosf( arm_sin_f32(angls_rad[0])/arm_sin_f32( X_real) );
+      povorot[1] = asinf( arm_sin_f32(angls_rad[1])/arm_sin_f32( X_real) );
     
-    X = asinf( sqrt(pow(sin(angl2[0]),2)/pow(sin(angl2[1]),2)) );
-    X_real_div_X = X_real/X;
+      
+      X_incl = angls_grad[0];
+      X_formula = asinf( sqrtf(powf(arm_sin_f32(angls_rad[0]),2)+powf(arm_sin_f32(angls_rad[1]),2)) ) * 180.0f/3.1415926535f;
+      X_real_div_X_formula = X_real/X_formula;
+      
+      Y_incl = angls_grad[1];
+      
+    }
     
   }
   /* USER CODE END 3 */
@@ -236,6 +291,44 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 63999;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 10;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -263,7 +356,27 @@ static void MX_GPIO_Init(void)
 
 //***************************
 //***************************
-
+static void debounce(volatile uint32_t * restrict pres_px, volatile uint32_t * restrict cnt_px, volatile uint32_t * restrict prev_px, uint32_t GPIOx_IDR)
+{
+    uint32_t cur_px = GPIOx_IDR;
+	if (cur_px != *prev_px) 
+    {
+      (*cnt_px)++;
+      if (*cnt_px >= 4)
+      {
+        *prev_px = cur_px;
+        *cnt_px = 0;
+        if(cur_px == 0)
+        {
+          *pres_px = 1;
+        }
+      }
+    }
+    else
+    {
+        *cnt_px = 0;
+    }
+}
 
 //***************************
 //***************************
