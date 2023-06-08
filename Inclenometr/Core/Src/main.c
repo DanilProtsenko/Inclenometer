@@ -36,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define gra_to_rad(a) a * 3.1415926535f /180.0f
+#define gra_to_rad(a) (a) * 3.141592653f /180.0f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,21 +51,42 @@ TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN PV */
 
-static float32_t angls_grad[3];
+static float32_t angls_grad[6];
 static float32_t angls_rad[3];
 static float32_t anglsmm[3];
+static float32_t rotangl[3];
+static float32_t rotangl2;
 
-static float32_t X_incl;
-static float32_t X_formula;
-static float32_t X_real;
-static float32_t X_real_div_X_formula;
+static float32_t sinangl[3];
+static float32_t sinangl_1[3];
+static float32_t sinangl_2[3];
+static float32_t sinangl_3[3];
 
-static float32_t Y_incl;
-static float32_t Y_formula;
-static float32_t Y_real;
+static float32_t sinangl_21[3];
+static float32_t sinangl_31[3];
 
-static float32_t povorot[2];
-static float32_t alpha;
+static float32_t angls[6];
+static float32_t g[3];
+static float32_t n[3];
+static float32_t gcal[3];
+static float32_t gnew[3];
+static float32_t gnew1[3];
+static float32_t gnew2[3];
+//static float32_t gcal[3];
+//static float32_t gnew[3];
+static float32_t G[3] = {0.0f,0.0f,1.0f};
+static float32_t MX[3][3];
+static float32_t MY[3][3];
+static float32_t MZ[3][3];
+static float32_t MZ2[3][3];
+
+//МАТРИЦЫ
+//........//
+static float32_t rotMatrixVector[9];
+static  arm_matrix_instance_f32 rotr;
+static float32_t rotMatrixVector2[9];
+static  arm_matrix_instance_f32 rotr2;
+//
 
 static volatile uint32_t pres_pc13; //Нажатие 
 static volatile uint32_t prev_pc13 = GPIO_IDR_ID13; //Предыдущее значение кнопки
@@ -83,7 +104,18 @@ static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
-static void debounce(volatile uint32_t * restrict pres_px, volatile uint32_t * restrict cnt_px, volatile uint32_t * restrict prev_px, uint32_t GPIOx_IDR);
+static void debounce(volatile uint32_t *  pres_px, volatile uint32_t *  cnt_px, volatile uint32_t *  prev_px, uint32_t GPIOx_IDR);
+
+void derotX(float32_t M[3][3], float32_t phi);
+void derotY(float32_t M[3][3], float32_t theta);
+void derotZ(float32_t M[3][3], float32_t psi);
+void rotvect(float32_t M[3][3], float32_t gin[3], float32_t gout[3]);
+
+
+void crossProduct3(const float32_t a[3], const float32_t b[3], float32_t result[3]);
+void normalize3(const float32_t vector[3], float32_t res[3]);
+void rotationMatrix3(const float32_t* a, const float32_t* b, float32_t* rotMatrix);
+
 
 
 void 	HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim){
@@ -159,46 +191,65 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   Incl_init();
-  
-  X_real = atan2f(1,40);
-  alpha = 0;
-  
+   
   while (1)
   {
-
     /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */  
 
-    /* USER CODE BEGIN 3 */
-    
+    //получаем значения с датчика
     Incl_Data_ANGL(angls_grad);
     for(uint32_t i = 0; i < 3; i++){
-    anglsmm[i] = tanf(gra_to_rad(angls_grad[i])) * 1600;
-    angls_rad[i] = gra_to_rad(angls_grad[i]);
+      angls_rad[i] = gra_to_rad(angls_grad[i]);
+      anglsmm[i] = tanf(angls_rad[i]) * 1600;
+//      g[i] = angls_grad[i+3];
+      sinangl[i] = arm_sin_f32(angls_rad[i]);
     }
-//    
-//    povorot[0] = acosf( sin(angl2[0])/sin( X_real) );
-//    povorot[1] = asinf( sin(angl2[1])/sin( X_real) );
-//    
-//    X = asinf( sqrt(pow(sin(angl2[0]),2)/pow(sin(angl2[1]),2)) );
-//    X_real_div_X = X_real/X;
     
-    if (key_press >0){
+    
+    //расчет углов через акселерометр
+//    angl[0] = atan2f(g[0],sqrtf(powf(g[1],2)+powf(g[2],2)));
+//    angl[1] = atan2f(g[1],sqrtf(powf(g[0],2)+powf(g[2],2)));
+//    angl[2] = atan2f(g[2],sqrtf(powf(g[0],2)+powf(g[1],2)));
+    
+    // события по кнопке
+    if (key_press == 1){
+      key_press = 0; 
+      
+      //вращение вокруг оси X на угол Y
+      rotangl[1] = angls_rad[1];
+      derotX(MX, rotangl[1]); 
+      rotvect(MX,sinangl,sinangl_1);
+      n[0] = sqrtf(pow(sinangl_1[0],2)+pow(sinangl_1[1],2)+pow(sinangl_1[2],2));
+      
+      //вращение вокруг оси Y на угол Xштрих
+      rotangl[0] = asinf(sinangl_1[0]);
+      derotY(MY, rotangl[0]);
+      rotvect(MY,sinangl_1,sinangl_2);
+      n[1] = sqrtf(pow(sinangl_2[0],2)+pow(sinangl_2[1],2)+pow(sinangl_2[2],2));
+    }
+    rotvect(MX,sinangl,sinangl_1);
+    rotvect(MY,sinangl_1,sinangl_2);
+    
+    if (key_press == 2){
       key_press = 0;
-      
-      
-      povorot[0] = acosf( arm_sin_f32(angls_rad[0])/arm_sin_f32( X_real) );
-      povorot[1] = asinf( arm_sin_f32(angls_rad[1])/arm_sin_f32( X_real) );
+    if(sinangl_2[0] > sinangl_2[1])
+    rotangl[2] = atan2f(sinangl_2[1],sinangl_2[0]);
+    else
+    rotangl2 = 3.141592653f/2.0f - atan2f(sinangl_2[0],sinangl_2[1]);
     
-      
-      X_incl = angls_grad[0];
-      X_formula = asinf( sqrtf(powf(arm_sin_f32(angls_rad[0]),2)+powf(arm_sin_f32(angls_rad[1]),2)) ) * 180.0f/3.1415926535f;
-      X_real_div_X_formula = X_real/X_formula;
-      
-      Y_incl = angls_grad[1];
-      
+    derotZ(MZ, rotangl[2]);
+    derotZ(MZ2, rotangl2);
     }
-    
-  }
+    rotvect(MZ,sinangl_2,sinangl_3);
+    rotvect(MZ2,sinangl_2,sinangl_31);
+    angls[0] = asin(sinangl_3[0]) * 180.0f/3.14;
+    angls[1] = asin(sinangl_3[1]) * 180.0f/3.14;
+    angls[2] = asin(sinangl_3[2]) * 180.0f/3.14;
+    angls[3] = asin(sinangl_31[0]) * 180.0f/3.14;
+    angls[4] = asin(sinangl_31[1]) * 180.0f/3.14;
+    angls[5] = asin(sinangl_31[2]) * 180.0f/3.14;     
+}
   /* USER CODE END 3 */
 }
 
@@ -356,7 +407,7 @@ static void MX_GPIO_Init(void)
 
 //***************************
 //***************************
-static void debounce(volatile uint32_t * restrict pres_px, volatile uint32_t * restrict cnt_px, volatile uint32_t * restrict prev_px, uint32_t GPIOx_IDR)
+static void debounce(volatile uint32_t * pres_px, volatile uint32_t * cnt_px, volatile uint32_t * prev_px, uint32_t GPIOx_IDR)
 {
     uint32_t cur_px = GPIOx_IDR;
 	if (cur_px != *prev_px) 
@@ -377,6 +428,172 @@ static void debounce(volatile uint32_t * restrict pres_px, volatile uint32_t * r
         *cnt_px = 0;
     }
 }
+
+
+//***************************
+//***************************
+
+void derotX(float32_t M[3][3], float32_t phi)
+{
+    float32_t m11 = 1.0f;
+    float32_t m12 = 0.0f;
+    float32_t m13 = 0.0f;
+    float32_t m21 = 0.0f;
+    float32_t m22 = arm_cos_f32(phi);
+    float32_t m23 = -arm_sin_f32(phi);
+    float32_t m31 = 0.0f;
+    float32_t m32 = arm_sin_f32(phi);
+    float32_t m33 = arm_cos_f32(phi);
+  
+    M[0][0] = m11;
+    M[0][1] = m12;
+    M[0][2] = m13;
+    M[1][0] = m21;
+    M[1][1] = m22;
+    M[1][2] = m23;
+    M[2][0] = m31;
+    M[2][1] = m32;
+    M[2][2] = m33;
+}
+
+
+void derotY(float32_t M[3][3], float32_t theta)
+{
+    float32_t m11 = arm_cos_f32(theta);
+    float32_t m12 = 0.0f;
+    float32_t m13 = -arm_sin_f32(theta);
+    float32_t m21 = 0.0f;
+    float32_t m22 = 1.0f;
+    float32_t m23 = 0.0f;
+    float32_t m31 = arm_sin_f32(theta);
+    float32_t m32 = 0.0f;
+    float32_t m33 = arm_cos_f32(theta);
+  
+    M[0][0] = m11;
+    M[0][1] = m12;
+    M[0][2] = m13;
+    M[1][0] = m21;
+    M[1][1] = m22;
+    M[1][2] = m23;
+    M[2][0] = m31;
+    M[2][1] = m32;
+    M[2][2] = m33;
+}
+
+void derotZ(float32_t M[3][3], float32_t psi)
+{
+    float32_t m11 = arm_cos_f32(psi);
+    float32_t m12 = arm_sin_f32(psi);
+    float32_t m13 = 0.0f;
+    float32_t m21 = -arm_sin_f32(psi);
+    float32_t m22 = arm_cos_f32(psi);
+    float32_t m23 = 0.0f;
+    float32_t m31 = 0.0f;
+    float32_t m32 = 0.0f;
+    float32_t m33 = 1.0f;
+  
+    M[0][0] = m11;
+    M[0][1] = m12;
+    M[0][2] = m13;
+    M[1][0] = m21;
+    M[1][1] = m22;
+    M[1][2] = m23;
+    M[2][0] = m31;
+    M[2][1] = m32;
+    M[2][2] = m33;
+}
+
+// Функция для выполнения де-ротации вектора данных с использованием де-ротационной матрицы
+void rotvect(float32_t M[3][3], float32_t gin[3], float32_t gout[3])
+{
+    gout[0] = M[0][0] * gin[0] + M[0][1] * gin[1] + M[0][2] * gin[2];
+    gout[1] = M[1][0] * gin[0] + M[1][1] * gin[1] + M[1][2] * gin[2];
+    gout[2] = M[2][0] * gin[0] + M[2][1] * gin[1] + M[2][2] * gin[2];
+}
+
+void crossProduct3(const float32_t a[3], const float32_t b[3], float32_t result[3]) {
+    result[0] = a[1] * b[2] - a[2] * b[1];
+    result[1] = a[2] * b[0] - a[0] * b[2];
+    result[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+void normalize3(const float32_t vector[3], float32_t res[3]) {
+  
+    float32_t dot_prod;
+    arm_dot_prod_f32(&vector[0], &vector[0], 3, &dot_prod);
+    arm_sqrt_f32(dot_prod,&dot_prod);
+    arm_scale_f32(&vector[0], (1.0f / dot_prod), &res[0], 3);
+}
+
+
+void rotationMatrix3(const float32_t* a, const float32_t* b, float32_t* rotMatrixV) {
+  
+    float32_t cross_res[3];
+    float32_t cross_res_ABS;
+    float32_t dotProduct;
+    float32_t crossProduct; 
+    
+    float32_t norma[3];
+    float32_t normb[3];
+  
+    float32_t I_matrixVector[9] = {
+     1.0f,    0.0f,    0.0f,
+     0.0f,    1.0f,    0.0f,
+     0.0f,    0.0f,    1.0f
+    };
+    float32_t AMA_matrixVector[9];
+    float32_t sumAB_matrixVector[9];
+  
+    arm_matrix_instance_f32 A_matrix;
+    arm_matrix_instance_f32 AMA_matrix;
+    arm_matrix_instance_f32 I_matrix;
+    arm_matrix_instance_f32 sumIA_matrix;
+    arm_matrix_instance_f32 rotMatrix;
+    
+    arm_mat_init_f32(&I_matrix,3,3, &I_matrixVector[0]);
+    arm_mat_init_f32(&AMA_matrix,3,3, &AMA_matrixVector[0]);
+    arm_mat_init_f32(&sumIA_matrix,3,3, &sumAB_matrixVector[0]);
+
+  
+
+    // Normalize vectors
+  
+    normalize3(&a[0],&norma[0]);
+    normalize3(&b[0],&normb[0]);
+    
+    crossProduct3(norma,normb,cross_res);
+    
+    float32_t A_matrixVector[9] = {
+      0.0f,           -cross_res[2],   cross_res[1],
+      cross_res[2],   0.0f,            -cross_res[0],
+     -cross_res[1],  cross_res[0],    0.0f
+    };  
+    arm_mat_init_f32(&A_matrix,3,3, &A_matrixVector[0]);
+    
+    // pow(A,2)
+    arm_mat_mult_f32(&A_matrix, &A_matrix, &AMA_matrix);
+
+    // Compute dot product
+    arm_dot_prod_f32(a,b,3,&dotProduct);
+    dotProduct =1 - dotProduct;
+    
+    // Compute cross product  
+    arm_dot_prod_f32(&cross_res[0], &cross_res[0], 3, &cross_res_ABS);
+    
+//    crossProduct = 1.0f / cross_res_ABS;
+    
+    //add matrix
+    
+    arm_mat_add_f32(&I_matrix,&A_matrix,&sumIA_matrix);
+    arm_mat_scale_f32(&AMA_matrix,dotProduct / cross_res_ABS,&AMA_matrix);
+    
+    //result
+     arm_mat_init_f32(&rotMatrix,3,3,rotMatrixV);
+     arm_mat_add_f32(&AMA_matrix,&sumIA_matrix, &rotMatrix);
+}
+
+
+
 
 //***************************
 //***************************

@@ -32,7 +32,7 @@
 #define INCL_SWITCH_TO_BANK_0     0xFC000073
 #define INCL_SWITCH_TO_BANK_1     0xFC00016E
 
-#define N 64
+#define N 128
 
 
 typedef struct Incl_Data{

@@ -58,7 +58,7 @@ void Incl_init(void){
   //Сброс настроек по умолчанию
   Incl_Data_SPI(INCL_SW_RESET, 1);
   //выбор режима
-  Incl_Data_SPI(INCL_CHANGE_TO_MODE_1, 1);
+  Incl_Data_SPI(INCL_CHANGE_TO_MODE_4, 1);
   //включить измерения
   Incl_Data_SPI(INCL_ENABLE_ANGL_OUTPUTS, 25);
   //прочитать статус
@@ -189,9 +189,9 @@ void Incl_Data_ANGL(float32_t* angls_buff){
     angls_buff[1] = ((float32_t)filter_y((data_rx_y[1] << 8) + data_rx_y[2])/ 16384.0f)* 90.0f;
     angls_buff[2] = ((float32_t)filter_z((data_rx_z[1] << 8) + data_rx_z[2])/ 16384.0f)* 90.0f;
   
-    angls_buff[3] = (float32_t)filter_Gx((data_rx_Gx[1] << 8) + data_rx_Gx[2])/ 6000;
-    angls_buff[4] = (float32_t)filter_Gy((data_rx_Gy[1] << 8) + data_rx_Gy[2])/ 6000;
-    angls_buff[5] = (float32_t)filter_Gz((data_rx_Gz[1] << 8) + data_rx_Gz[2])/ 6000;
+//    angls_buff[3] = (float32_t)filter_Gx((data_rx_Gx[1] << 8) + data_rx_Gx[2])/ 12000;
+//    angls_buff[4] = (float32_t)filter_Gy((data_rx_Gy[1] << 8) + data_rx_Gy[2])/ 12000;
+//    angls_buff[5] = (float32_t)filter_Gz((data_rx_Gz[1] << 8) + data_rx_Gz[2])/ 12000;
   
 }
 

@@ -158,36 +158,44 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>anglsmm</ItemText>
-        </Ww>
-      </WatchWindow1>
-      <WatchWindow2>
-        <Ww>
-          <count>0</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>povorot</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>X_incl</ItemText>
+          <ItemText>sinangl</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>X_formula</ItemText>
+          <WinNumber>1</WinNumber>
+          <ItemText>sinangl_1</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>X_real_div_X_formula</ItemText>
+          <WinNumber>1</WinNumber>
+          <ItemText>n</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>Y_incl</ItemText>
+          <WinNumber>1</WinNumber>
+          <ItemText>sinangl_2</ItemText>
         </Ww>
-      </WatchWindow2>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rotangl</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sinangl_3</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>angls</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rotangl2</ItemText>
+        </Ww>
+      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
