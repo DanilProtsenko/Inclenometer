@@ -26,7 +26,7 @@
 #include "arm_math.h"
 
 #include "incl.h"
-
+#include "InclMathFix.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +56,7 @@ static float32_t angls_rad[3];
 static float32_t anglsmm[3];
 static float32_t rotangl[3];
 static float32_t rotangl2;
+static sInclData incl;
 
 static float32_t sinangl[3];
 static float32_t sinangl_1[3];
@@ -216,39 +217,45 @@ int main(void)
     if (key_press == 1){
       key_press = 0; 
       
-      //вращение вокруг оси X на угол Y
-      rotangl[1] = angls_rad[1];
-      derotX(MX, rotangl[1]); 
-      rotvect(MX,sinangl,sinangl_1);
-      n[0] = sqrtf(pow(sinangl_1[0],2)+pow(sinangl_1[1],2)+pow(sinangl_1[2],2));
-      
-      //вращение вокруг оси Y на угол Xштрих
-      rotangl[0] = asinf(sinangl_1[0]);
-      derotY(MY, rotangl[0]);
-      rotvect(MY,sinangl_1,sinangl_2);
-      n[1] = sqrtf(pow(sinangl_2[0],2)+pow(sinangl_2[1],2)+pow(sinangl_2[2],2));
+//      //вращение вокруг оси X на угол Y
+//      rotangl[1] = angls_rad[1];
+//      derotX(MX, rotangl[1]); 
+//      rotvect(MX,sinangl,sinangl_1);
+//      n[0] = sqrtf(pow(sinangl_1[0],2)+pow(sinangl_1[1],2)+pow(sinangl_1[2],2));
+//      
+//      //вращение вокруг оси Y на угол Xштрих
+//      rotangl[0] = asinf(sinangl_1[0]);
+//      derotY(MY, rotangl[0]);
+//      rotvect(MY,sinangl_1,sinangl_2);
+//      n[1] = sqrtf(pow(sinangl_2[0],2)+pow(sinangl_2[1],2)+pow(sinangl_2[2],2));
+      Incl_Data_Init_1(angls_rad,&incl);
     }
-    rotvect(MX,sinangl,sinangl_1);
-    rotvect(MY,sinangl_1,sinangl_2);
-    
-    if (key_press == 2){
-      key_press = 0;
-    if(sinangl_2[0] > sinangl_2[1])
-    rotangl[2] = atan2f(sinangl_2[1],sinangl_2[0]);
-    else
-    rotangl2 = 3.141592653f/2.0f - atan2f(sinangl_2[0],sinangl_2[1]);
-    
-    derotZ(MZ, rotangl[2]);
-    derotZ(MZ2, rotangl2);
+    else if (key_press == 2){
+      key_press = 0; 
+      Incl_Data_Init_2(angls_rad,&incl);
     }
-    rotvect(MZ,sinangl_2,sinangl_3);
-    rotvect(MZ2,sinangl_2,sinangl_31);
-    angls[0] = asin(sinangl_3[0]) * 180.0f/3.14;
-    angls[1] = asin(sinangl_3[1]) * 180.0f/3.14;
-    angls[2] = asin(sinangl_3[2]) * 180.0f/3.14;
-    angls[3] = asin(sinangl_31[0]) * 180.0f/3.14;
-    angls[4] = asin(sinangl_31[1]) * 180.0f/3.14;
-    angls[5] = asin(sinangl_31[2]) * 180.0f/3.14;     
+    fixangl(angls_rad, &incl);
+//    rotvect(MX,sinangl,sinangl_1);
+//    rotvect(MY,sinangl_1,sinangl_2);
+//    
+//    if (key_press == 2){
+//      key_press = 0;
+//    if(sinangl_2[0] > sinangl_2[1])
+//    rotangl[2] = atan2f(sinangl_2[1],sinangl_2[0]);
+//    else
+//    rotangl2 = 3.141592653f/2.0f - atan2f(sinangl_2[0],sinangl_2[1]);
+//    
+//    derotZ(MZ, rotangl[2]);
+//    derotZ(MZ2, rotangl2);
+//    }
+//    rotvect(MZ,sinangl_2,sinangl_3);
+//    rotvect(MZ2,sinangl_2,sinangl_31);
+    angls[0] = asin(incl.data_out[0]) * 180.0f/3.14;
+    angls[1] = asin(incl.data_out[1]) * 180.0f/3.14;
+    angls[2] = asin(incl.data_out[2]) * 180.0f/3.14;
+//    angls[3] = asin(sinangl_31[0]) * 180.0f/3.14;
+//    angls[4] = asin(sinangl_31[1]) * 180.0f/3.14;
+//    angls[5] = asin(sinangl_31[2]) * 180.0f/3.14;     
 }
   /* USER CODE END 3 */
 }

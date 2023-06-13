@@ -4,6 +4,7 @@
 "inclenometr\main.o"
 "inclenometr\stm32l4xx_it.o"
 "inclenometr\stm32l4xx_hal_msp.o"
+"inclenometr\inclmathfix.o"
 "inclenometr\stm32l4xx_hal_spi.o"
 "inclenometr\stm32l4xx_hal_spi_ex.o"
 "inclenometr\stm32l4xx_hal.o"
