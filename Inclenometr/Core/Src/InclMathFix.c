@@ -12,7 +12,7 @@
   * @brief  Главная функция, перемножающая вектор из 3х элементов на матрицу поворота 3x3.
   * @note   Используйте после инициализации матрицы поворота (функции Incl_Data_Init_1 и Incl_Data_Init_2).
   * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 3х углов в РАДИАНАХ
-  * @param[out] output_angls    Указатель на структуру данных датчика sInclDat
+  * @param[out] output_angls    Указатель на структуру данных sInclDat датчика
   */
  void fixangl(float32_t* input_angls, sInclData* sStruct){
    arm_matrix_instance_f32 rotM;
@@ -31,7 +31,7 @@
    Даллее, необходимо поднять устройство вдоль оси X на любой угол, жедательно не слишком маленький (идеально на 45 градусов) и вызвать
    функцию с цифрой 2 ОДИН раз(например по нажатию кнопки).
   * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 3х углов в РАДИАНАХ
-  * @param[out] output_angls    Указатель на структуру данных датчика sInclDat
+  * @param[out] output_angls    Указатель на структуру данных sInclDat датчика
   */  
  void Incl_Data_Init_1(float32_t* pData, sInclData* sStruct){
    
@@ -49,10 +49,10 @@
    sStruct->data_in[0] = arm_sin_f32(pData[0]);
    sStruct->data_in[1] = arm_sin_f32(pData[1]);
    sStruct->data_in[2] = arm_sin_f32(pData[2]);
-   //угол вращения вокруг оси x равен углу y инклинометра
+   //угол вращения вокруг оси X равен углу Y инклинометра
    sStruct->rot_angls[0] = pData[1];
-   
    dataMx_init(dataMx,sStruct->rot_angls[0]);
+   
    arm_mat_vec_mult_f32(&rotMx,sStruct->data_in,tempData);
    
    sStruct->rot_angls[1] = asinf(tempData[0]);
@@ -76,13 +76,14 @@
    arm_mat_init_f32(&rotMtemp,3,3,dataMtemp);
    
    fixangl(pData, sStruct);
-   /**у меня все время срабатывал первый вариант, нам необходимо, чтобы заменатель был больше числителя,
-   как сказал Василий Игоревич: "Так точнее"
+   /**Первый вариант срабатывает при угле поворота по Z не больше чем на 45 градусов,второй, когда больше 45, но это уже фантастика
    **/
-   if(sStruct->data_out[0] > sStruct->data_out[1])
+   if(fabsf(sStruct->data_out[0]) > fabsf(sStruct->data_out[1]))
     sStruct->rot_angls[2] = atan2f(sStruct->data_out[1],sStruct->data_out[0]);
-   else
-    sStruct->rot_angls[2] = 3.141592653f/2.0f - atan2f(sStruct->data_out[0],sStruct->data_out[1]);
+   else{
+    float32_t temp = sStruct->data_out[0]/sStruct->data_out[1];
+    sStruct->rot_angls[2] = acosf(temp/sqrtf(1.0f*temp*temp));
+   }
    
    dataMz_init(dataMz,sStruct->rot_angls[2]);
    arm_copy_f32(sStruct->dataM,dataMtemp,9);

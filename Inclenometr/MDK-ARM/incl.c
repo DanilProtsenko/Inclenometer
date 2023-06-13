@@ -60,7 +60,7 @@ void Incl_init(void){
   //выбор режима
   Incl_Data_SPI(INCL_CHANGE_TO_MODE_4, 1);
   //включить измерения
-  Incl_Data_SPI(INCL_ENABLE_ANGL_OUTPUTS, 25);
+  Incl_Data_SPI(INCL_ENABLE_ANGL_OUTPUTS, 100);
   //прочитать статус
   Incl_Data_SPI(INCL_READ_STATUS, 1);
   
