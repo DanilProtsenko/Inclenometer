@@ -32,7 +32,7 @@
 #define INCL_SWITCH_TO_BANK_0     0xFC000073
 #define INCL_SWITCH_TO_BANK_1     0xFC00016E
 
-#define N 128
+#define N 32
 
 
 typedef struct Incl_Data{
@@ -47,6 +47,7 @@ typedef struct Incl_Data{
 extern SPI_HandleTypeDef hspi1;
 
 extern uint8_t Error_CRC;
+extern uint32_t one_sec_flag;
 
 uint16_t Incl_Data_SPI(uint32_t command, uint32_t delay_ms);
 void Incl_init(void);
@@ -63,8 +64,8 @@ int16_t filter_x(int16_t x);
 int16_t filter_z(int16_t x);
 int16_t filter_y(int16_t x);
 
-int16_t filter_Gx(int16_t x);
-int16_t filter_Gy(int16_t x);
-int16_t filter_Gz(int16_t x);
+//int16_t filter_Gx(int16_t x);
+//int16_t filter_Gy(int16_t x);
+//int16_t filter_Gz(int16_t x);
 
 #endif /* INCL_H_ */

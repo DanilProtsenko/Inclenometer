@@ -22,12 +22,26 @@ Dialog DLL:      TCM.DLL V1.48.0.0
  
 <h2>Project:</h2>
 C:\Users\protsenko\Desktop\STM32_Projects\Inclenometr\MDK-ARM\Inclenometr.uvprojx
-Project File Date:  06/08/2023
+Project File Date:  06/26/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Inclenometr'
-"Inclenometr\Inclenometr.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+../Core/Src/main.c(160): warning:  #177-D: variable "filtr_counter"  was declared but never referenced
+    uint32_t filtr_counter;
+../Core/Src/main.c(58): warning:  #177-D: variable "anglsmm"  was declared but never referenced
+  static float32_t anglsmm[3];
+../Core/Src/main.c(62): warning:  #550-D: variable "sinangl"  was set but never used
+  static float32_t sinangl[3];
+../Core/Src/main.c: 3 warnings, 0 errors
+linking...
+Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf4, instruction is within an IT block and is not the last instruction for log.o(i.__hardfp_log).
+Inclenometr\Inclenometr.axf: Warning: L6989W: Could not apply patch sdcomp-29491-629360 to instruction VPOP     {d8-d15} at offset 0xf0, instruction is within an IT block and is not the last instruction for log_x.o(i.____hardfp_log$lsc).
+Program Size: Code=103412 RO-data=6444 RW-data=72 ZI-data=2472  
+Finished: 0 information, 2 warning and 0 error messages.
+FromELF: creating hex file...
+"Inclenometr\Inclenometr.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -36,61 +50,66 @@ Package Vendor: ARM
                 ARM.CMSIS.5.9.0
                 CMSIS (Common Microcontroller Software Interface Standard)
    * Component: CORE Version: 5.6.0
-   * Component: DSP Variant: Source Version: 1.10.0
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS-DSP.1.14.4.pack
+                ARM.CMSIS-DSP.1.14.4
+                CMSIS Embedded Compute Library
+   * Component: DSP Variant: Source Version: 1.14.4
 
 Package Vendor: Keil
-                http://www.keil.com/pack/Keil.STM32L4xx_DFP.2.6.1.pack
-                Keil.STM32L4xx_DFP.2.6.1
+                https://www.keil.com/pack/Keil.STM32L4xx_DFP.2.6.2.pack
+                Keil.STM32L4xx_DFP.2.6.2
                 STMicroelectronics STM32L4 Series Device Support, Drivers and Examples
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_Inclenometr
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS-DSP\1.14.4\Include
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS-DSP\1.14.4\PrivateInclude
   C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\Core\Include
-  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\Include
-  C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\PrivateInclude
-  C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.6.1\Drivers\CMSIS\Device\ST\STM32L4xx\Include
+  C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.6.2\Drivers\CMSIS\Device\ST\STM32L4xx\Include
 
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.6.0
       Include file:  CMSIS\Core\Include\tz_context.h
 
-   * Component: ARM::CMSIS:DSP:Source:1.10.0
-      Include file:  CMSIS\DSP\Include\arm_math.h
-      Source file:   CMSIS\DSP\Source\CommonTables\CommonTablesF16.c
-      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctionsF16.c
-      Include file:  CMSIS\DSP\Include\arm_const_structs.h
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\StatisticsFunctions\StatisticsFunctions.c
-      Source file:   CMSIS\DSP\Source\CommonTables\CommonTables.c
-      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctions.c
-      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_math_f16.h
-      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctions.c
-      Source file:   CMSIS\DSP\Source\FilteringFunctions\FilteringFunctions.c
-      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctions.c
-      Source file:   CMSIS\DSP\Source\MatrixFunctions\MatrixFunctions.c
-      Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_common_tables.h
-      Source file:   CMSIS\DSP\Source\BasicMathFunctions\BasicMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\TransformFunctions\TransformFunctions.c
-      Source file:   CMSIS\DSP\Source\QuaternionMathFunctions\QuaternionMathFunctions.c
-      Source file:   CMSIS\DSP\Source\FastMathFunctions\FastMathFunctions.c
-      Source file:   CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c
-      Source file:   CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c
-      Include file:  CMSIS\DSP\Include\arm_const_structs_f16.h
-      Include file:  CMSIS\DSP\Include\arm_common_tables_f16.h
-      Source file:   CMSIS\DSP\Source\InterpolationFunctions\InterpolationFunctions.c
-      Source file:   CMSIS\DSP\Source\ComplexMathFunctions\ComplexMathFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\SVMFunctions\SVMFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\BayesFunctions\BayesFunctionsF16.c
-      Source file:   CMSIS\DSP\Source\DistanceFunctions\DistanceFunctionsF16.c
-Build Time Elapsed:  00:00:01
+   * Component: ARM::CMSIS:DSP:Source:1.14.4
+      Source file:   Source\BasicMathFunctions\BasicMathFunctionsF16.c
+      Source file:   Source\FastMathFunctions\FastMathFunctionsF16.c
+      Source file:   Source\InterpolationFunctions\InterpolationFunctionsF16.c
+      Include file:  Include\arm_const_structs_f16.h
+      Source file:   Source\DistanceFunctions\DistanceFunctions.c
+      Source file:   Source\FastMathFunctions\FastMathFunctions.c
+      Source file:   Source\ControllerFunctions\ControllerFunctions.c
+      Source file:   Source\FilteringFunctions\FilteringFunctions.c
+      Source file:   Source\ComplexMathFunctions\ComplexMathFunctionsF16.c
+      Source file:   Source\SupportFunctions\SupportFunctions.c
+      Source file:   Source\TransformFunctions\TransformFunctions.c
+      Source file:   Source\CommonTables\CommonTablesF16.c
+      Include file:  Include\arm_const_structs.h
+      Source file:   Source\BasicMathFunctions\BasicMathFunctions.c
+      Source file:   Source\SVMFunctions\SVMFunctions.c
+      Source file:   Source\BayesFunctions\BayesFunctions.c
+      Source file:   Source\TransformFunctions\TransformFunctionsF16.c
+      Source file:   Source\MatrixFunctions\MatrixFunctionsF16.c
+      Include file:  Include\arm_common_tables_f16.h
+      Source file:   Source\InterpolationFunctions\InterpolationFunctions.c
+      Source file:   Source\SupportFunctions\SupportFunctionsF16.c
+      Source file:   Source\StatisticsFunctions\StatisticsFunctions.c
+      Source file:   Source\DistanceFunctions\DistanceFunctionsF16.c
+      Source file:   Source\CommonTables\CommonTables.c
+      Source file:   Source\QuaternionMathFunctions\QuaternionMathFunctions.c
+      Source file:   Source\MatrixFunctions\MatrixFunctions.c
+      Source file:   Source\StatisticsFunctions\StatisticsFunctionsF16.c
+      Source file:   Source\ComplexMathFunctions\ComplexMathFunctions.c
+      Source file:   Source\FilteringFunctions\FilteringFunctionsF16.c
+      Source file:   Source\BayesFunctions\BayesFunctionsF16.c
+      Include file:  Include\arm_math.h
+      Include file:  Include\arm_math_f16.h
+      Include file:  Include\arm_common_tables.h
+      Source file:   Source\SVMFunctions\SVMFunctionsF16.c
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

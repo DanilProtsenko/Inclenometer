@@ -32,3 +32,5 @@ inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_
 inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h
 inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h
 inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h
+inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h
+inclenometr\stm32l4xx_hal_gpio.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h

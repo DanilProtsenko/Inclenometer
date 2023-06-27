@@ -691,13 +691,12 @@ ARM Macro Assembler    Page 11
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp.sp --apcs=
 interwork --depend=inclenometr\startup_stm32l476xx.d -oinclenometr\startup_stm3
-2l476xx.o -I.\RTE\_Inclenometr -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\Core
-\Include -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\Include -IC:\Keil_v5\A
-RM\PACK\ARM\CMSIS\5.9.0\CMSIS\DSP\PrivateInclude -IC:\Keil_v5\ARM\PACK\Keil\STM
-32L4xx_DFP\2.6.1\Drivers\CMSIS\Device\ST\STM32L4xx\Include --predefine="__UVISI
-ON_VERSION SETA 534" --predefine="_RTE_ SETA 1" --predefine="STM32L476xx SETA 1
-" --predefine="_RTE_ SETA 1" --list=startup_stm32l476xx.lst startup_stm32l476xx
-.s
+2l476xx.o -I.\RTE\_Inclenometr -IC:\Keil_v5\ARM\PACK\ARM\CMSIS-DSP\1.14.4\Inclu
+de -IC:\Keil_v5\ARM\PACK\ARM\CMSIS-DSP\1.14.4\PrivateInclude -IC:\Keil_v5\ARM\P
+ACK\ARM\CMSIS\5.9.0\CMSIS\Core\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP
+\2.6.2\Drivers\CMSIS\Device\ST\STM32L4xx\Include --predefine="__UVISION_VERSION
+ SETA 534" --predefine="_RTE_ SETA 1" --predefine="STM32L476xx SETA 1" --predef
+ine="_RTE_ SETA 1" --list=startup_stm32l476xx.lst startup_stm32l476xx.s
 
 
 

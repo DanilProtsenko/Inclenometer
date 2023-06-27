@@ -18,7 +18,7 @@
    arm_matrix_instance_f32 rotM;
    arm_mat_init_f32(&rotM,3,3,sStruct->dataM);
    
-   //гарантия что данные не изменятся во время расчетов. Функции, которые работают с матрицами принимают константные входные значения.
+   //гарантия, что данные не изменятся во время расчетов. Функции, которые работают с матрицами принимают константные входные значения.
    sStruct->data_in[0] = arm_sin_f32(input_angls[0]);
    sStruct->data_in[1] = arm_sin_f32(input_angls[1]);
    sStruct->data_in[2] = arm_sin_f32(input_angls[2]);
@@ -70,19 +70,23 @@
    arm_matrix_instance_f32 rotMtemp;
    float32_t dataMz[9];
    float32_t dataMtemp[9];
+   float32_t temp;
    
    arm_mat_init_f32(&rotMz,3,3,dataMz);
    arm_mat_init_f32(&rotM,3,3,sStruct->dataM);
    arm_mat_init_f32(&rotMtemp,3,3,dataMtemp);
    
    fixangl(pData, sStruct);
-   /**Первый вариант срабатывает при угле поворота по Z не больше чем на 45 градусов,второй, когда больше 45, но это уже фантастика
+   /**Первый вариант срабатывает при угле поворота по Z не больше чем на 45 градусов,второй — когда больше 45, но это уже фантастика
    **/
-   if(fabsf(sStruct->data_out[0]) > fabsf(sStruct->data_out[1]))
+   if(fabsf(sStruct->data_out[0]) > fabsf(sStruct->data_out[1])){
+//    temp = sStruct->data_out[1]/sStruct->data_out[0];
+//    sStruct->rot_angls[2] = asinf(temp/sqrtf(1.0f+temp*temp));
     sStruct->rot_angls[2] = atan2f(sStruct->data_out[1],sStruct->data_out[0]);
+   }
    else{
-    float32_t temp = sStruct->data_out[0]/sStruct->data_out[1];
-    sStruct->rot_angls[2] = acosf(temp/sqrtf(1.0f*temp*temp));
+    temp = sStruct->data_out[0]/sStruct->data_out[1];
+    sStruct->rot_angls[2] = acosf(temp/sqrtf(1.0f+temp*temp));
    }
    
    dataMz_init(dataMz,sStruct->rot_angls[2]);
@@ -91,7 +95,7 @@
    
  }
  /**
-  * @brief  Функции инициализирующие массивы из 9 элементов для матриц вращения 3x3 на известные углы phi,theta,psi.
+  * @brief  Функции, инициализирующие массивы из 9 элементов для матриц вращения 3x3 на известные углы phi,theta,psi.
   * @note   Если вращает куда то нетуда можете транспонировать матрицу, тогда будет вращать в другую сторону
   * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 9 элементов.
   массив в дальнейшем будет использоваться для инициализации матрицы 3x3
