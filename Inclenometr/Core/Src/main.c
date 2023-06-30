@@ -56,6 +56,8 @@ UART_HandleTypeDef huart2;
 static float32_t angls_grad[6];
 static float32_t angls_rad[3];
 static float32_t anglsmm[3];
+static float32_t delta;
+static float32_t delta2;
 
 static sInclData incl;
 
@@ -155,8 +157,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   Incl_init();
-  uint32_t success;
-  float32_t delta;
+  uint32_t success = 0;
   uint32_t filtr_counter;
   while (1)
   {
@@ -165,12 +166,19 @@ int main(void)
     /* USER CODE BEGIN 3 */
     //получаем значения с датчика
     Incl_Data_ANGL(angls_grad);
-    for(uint32_t i = 0; i < 3; i++){
-      angls_rad[i] = gra_to_rad(angls_grad[i]);
-//      anglsmm[i] = tanf(angls_rad[i]) * 1600;
-//      g[i] = angls_grad[i+3];
-      sinangl[i] = arm_sin_f32(angls_rad[i]);
-    }   
+      if (success){
+        angls_rad[0] = gra_to_rad(angls_grad[0]);
+        angls_rad[1] = gra_to_rad(angls_grad[1]);
+        angls_rad[2] = gra_to_rad(angls_grad[2]);
+      }
+      else{
+        for(uint32_t i = 0; i < 3; i++){
+          angls_rad[i] = gra_to_rad(angls_grad[i]);
+//        anglsmm[i] = tanf(angls_rad[i]) * 1600;
+//        g[i] = angls_grad[i+3];
+//          sinangl[i] = arm_sin_f32(angls_rad[i]);
+        }
+      }        
     // события по кнопке
     if (key_press == 1){
       key_press = 0; 
@@ -179,42 +187,57 @@ int main(void)
     }
     else if (key_press == 2){
       key_press = 0;
-      success = 1;
       Incl_Data_Init_2(angls_rad,&incl);
+    }   
+    else if (key_press == 3){
+      key_press = 0;
+      delta = angls_rad[0];
+      delta2 = incl.data_out[0];
+    }
+    else if (key_press == 4){
+      key_press = 0;
+      delta = angls_rad[0] - delta;
+      delta /= atan2f(160.0f,1600.0f);
+      
+      delta2 = incl.data_out[0] - delta2;
+      delta2 /= atan2f(160.0f,1600.0f);
+      success = 1; 
     }
     
     fixangl(angls_rad, &incl);
     
-    if (key_press == 1 && success == 1){
-      key_press = 0;
-      delta = asin(incl.data_out[0]);
-    }
-    else if (key_press == 2 && success == 1){
-      key_press = 0;
-      delta -= asin(incl.data_out[0]);
-      delta /= gra_to_rad(5.7f); 
-    }
-    if (key_press == 3 && uart_count && (one_sec_flag >=32)){
-      uart_count = (uart_count+1)%101;
-      one_sec_flag =0;
+//    if (key_press == 3 && uart_count && (one_sec_flag >=32)){
+//      uart_count = (uart_count+1)%101;
+//      one_sec_flag =0;
+//      char range_str[100];
+//      angls[0] = incl.data_out[0];
+//      sprintf(range_str,"%0.20f\t",angls[0]);
+//      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
+
+//      angls[1] = incl.data_out[1];
+//      sprintf(range_str,"%0.20f\t",angls[1]);
+//      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
+
+//      angls[2] = incl.data_out[2];
+//      sprintf(range_str,"%0.20f\n",angls[2]);
+//      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
+//    }
+//    else if (uart_count == 0){
+//      key_press = 0;
+//      uart_count = 1;
+//      one_sec_flag = 0;
+//    }
+
+//      char range_str[100];
+//      angls[0] = incl.data_out[0];
+//      sprintf(range_str,"%0.20f\t",angls[0]);
+//      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
+      
       char range_str[100];
-      angls[0] = incl.data_out[0];
-      sprintf(range_str,"%0.20f\t",angls[0]);
+      sprintf(range_str,"%f\t%f\n",delta,delta2);
       HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
-
-      angls[1] = incl.data_out[1];
-      sprintf(range_str,"%0.20f\t",angls[1]);
-      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
-
-      angls[2] = incl.data_out[2];
-      sprintf(range_str,"%0.20f\n",angls[2]);
-      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
-    }
-    else if (uart_count == 0){
-      key_press = 0;
-      uart_count = 1;
-      one_sec_flag = 0;
-    }
+      
+      
 //    angls[3] = asin(sinangl_31[0]) * 180.0f/3.14;
 //    angls[4] = asin(sinangl_31[1]) * 180.0f/3.14;
 //    angls[5] = asin(sinangl_31[2]) * 180.0f/3.14;     

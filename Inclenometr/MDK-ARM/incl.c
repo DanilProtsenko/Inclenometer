@@ -108,29 +108,29 @@ void Incl_Data_ANGL(float32_t* angls_buff){
   uint8_t data_rx_y[4];
   uint8_t data_rx_z[4];
   
-  uint8_t data_tx_Gx[4];
-  uint8_t data_tx_Gy[4];
-  uint8_t data_tx_Gz[4];
-  
-  uint8_t data_rx_Gx[4];
-  uint8_t data_rx_Gy[4];
-  uint8_t data_rx_Gz[4];
+//  uint8_t data_tx_Gx[4];
+//  uint8_t data_tx_Gy[4];
+//  uint8_t data_tx_Gz[4];
+//  
+//  uint8_t data_rx_Gx[4];
+//  uint8_t data_rx_Gy[4];
+//  uint8_t data_rx_Gz[4];
   
   uint32_t tx_comm_x = INCL_READ_ANG_X;
   uint32_t tx_comm_y = INCL_READ_ANG_Y;
   uint32_t tx_comm_z = INCL_READ_ANG_Z;
   
-  uint32_t tx_comm_Gx = INCL_READ_ACC_X;
-  uint32_t tx_comm_Gy = INCL_READ_ACC_Y;
-  uint32_t tx_comm_Gz = INCL_READ_ACC_Z;
+//  uint32_t tx_comm_Gx = INCL_READ_ACC_X;
+//  uint32_t tx_comm_Gy = INCL_READ_ACC_Y;
+//  uint32_t tx_comm_Gz = INCL_READ_ACC_Z;
   
   parse_command(data_tx_x,4,(uint8_t*)&tx_comm_x);
   parse_command(data_tx_y,4,(uint8_t*)&tx_comm_y);
   parse_command(data_tx_z,4,(uint8_t*)&tx_comm_z);
   
-  parse_command(data_tx_Gx,4,(uint8_t*)&tx_comm_Gx);
-  parse_command(data_tx_Gy,4,(uint8_t*)&tx_comm_Gy);
-  parse_command(data_tx_Gz,4,(uint8_t*)&tx_comm_Gz);
+//  parse_command(data_tx_Gx,4,(uint8_t*)&tx_comm_Gx);
+//  parse_command(data_tx_Gy,4,(uint8_t*)&tx_comm_Gy);
+//  parse_command(data_tx_Gz,4,(uint8_t*)&tx_comm_Gz);
   
   if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4) == GPIO_PIN_SET){
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
