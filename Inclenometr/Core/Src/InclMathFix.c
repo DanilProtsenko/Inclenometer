@@ -1,107 +1,110 @@
 /******************************************************************************
- * @file     InclMathFix.c
- * @brief    Cодержит определения функций для исправления кривого расположения инелинометра SCL3300-D01
- * @version  V1.0
- * @date     08 Июнь 2023
- * Собирался на : STM32L476RGTx c инклинометром SCL3300-D01
- ******************************************************************************/
+ * @file InclMathFix.c
+ * @brief Содержит определения функций для исправления неправильного расположения инклинометра SCL3300-D01.
+ * @version V1.0
+ * @date 08 Июнь 2023
+ * @platform STM32L476RGTx с использованием инклинометра SCL3300-D01
+******************************************************************************/
+/**
+
+Собрано на: STM32L476RGTx с использованием инклинометра SCL3300-D01.
+*/
  
 #include "InclMathFix.h"
  
+/**
+ * @brief   Перемножает вектор из 3 элементов на матрицу поворота 3x3.
+ * @note    Используйте после инициализации матрицы поворота (функции inclDataInit1 и inclDataInit2).
+ *
+ * @param[in]   inputAngles     Указатель на первый элемент массива, состоящего из трех углов в радианах.
+ * @param[out]  outputData      Указатель на структуру данных sInclData датчика.
+ */
+void fixAngles(float32_t* inputAngles, sInclData* sIncl) {
+    // Инициализация матрицы поворота 3x3 с использованием данных из массива outputData->dataM (формат данных: float32_t)
+    arm_matrix_instance_f32 rotM;
+    arm_mat_init_f32(&rotM, 3, 3, sIncl->dataM);
+    
+    // Гарантия, что данные не изменятся во время расчетов.
+    sIncl->dataIn[0] = arm_sin_f32(inputAngles[0]);
+    sIncl->dataIn[1] = arm_sin_f32(inputAngles[1]);
+    sIncl->dataIn[2] = arm_sin_f32(inputAngles[2]);
+    
+    // Выполняется умножение матрицы на вектор.
+    arm_mat_vec_mult_f32(&rotM, sIncl->dataIn, sIncl->dataOut);
+}
  /**
-  * @brief  Главная функция, перемножающая вектор из 3х элементов на матрицу поворота 3x3.
-  * @note   Используйте после инициализации матрицы поворота (функции Incl_Data_Init_1 и Incl_Data_Init_2).
-  * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 3х углов в РАДИАНАХ
-  * @param[out] output_angls    Указатель на структуру данных sInclDat датчика
-  */
- void fixangl(float32_t* input_angls, sInclData* sStruct){
-   arm_matrix_instance_f32 rotM;
-   arm_mat_init_f32(&rotM,3,3,sStruct->dataM);
+ * @brief   Инициализирует матрицу поворота.
+ * @note    Данная функция должна быть вызвана один раз перед использованием.
+ *          Рекомендуется вызывать функцию при установке устройства на ровную поверхность.
+ *          Затем необходимо поднять устройство вдоль оси X на любой угол, предпочтительно не очень маленький (идеально на 45 градусов),
+ *          и вызвать функцию InclDataInit2 один раз.
+ *
+ * @param[in]   inputAngles      Указатель на первый элемент массива, состоящего из трех углов в радианах.
+ * @param[out]  outputData       Указатель на структуру данных sInclData датчика.
+ */
+void inclDataInit1(float32_t* inputAngles, sInclData* sIncl) {
+    arm_matrix_instance_f32 rotMx;
+    arm_matrix_instance_f32 rotMy;
+    arm_matrix_instance_f32 rotM;
+    float32_t dataMx[9];
+    float32_t dataMy[9];
+    float32_t tempData[3];
    
-   //гарантия, что данные не изменятся во время расчетов. Функции, которые работают с матрицами принимают константные входные значения.
-   sStruct->data_in[0] = arm_sin_f32(input_angls[0]);
-   sStruct->data_in[1] = arm_sin_f32(input_angls[1]);
-   sStruct->data_in[2] = arm_sin_f32(input_angls[2]);
+    arm_mat_init_f32(&rotMx, 3, 3, dataMx);
+    arm_mat_init_f32(&rotMy, 3, 3, dataMy);
+    arm_mat_init_f32(&rotM, 3, 3, sIncl->dataM);
    
-   arm_mat_vec_mult_f32(&rotM,sStruct->data_in,sStruct->data_out);
- }
- /**
-  * @brief  Функции инициализирующие матрицу поворта.
-  * @note   Сначала необходимо вызвать функцию с цифрой 1 ОДИН раз(например по нажатию кнопки), когда устройство стоит на ровной поверхности.
-   Даллее, необходимо поднять устройство вдоль оси X на любой угол, жедательно не слишком маленький (идеально на 45 градусов) и вызвать
-   функцию с цифрой 2 ОДИН раз(например по нажатию кнопки).
-  * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 3х углов в РАДИАНАХ
-  * @param[out] output_angls    Указатель на структуру данных sInclDat датчика
-  */  
- void Incl_Data_Init_1(float32_t* pData, sInclData* sStruct){
+    sIncl->dataIn[0] = arm_sin_f32(inputAngles[0]);
+    sIncl->dataIn[1] = arm_sin_f32(inputAngles[1]);
+    sIncl->dataIn[2] = arm_sin_f32(inputAngles[2]);
+    // Угол вращения вокруг оси X равен углу Y инклинометра.
+    sIncl->rotAngles[0] = inputAngles[1];
+    dataMxInit(dataMx, sIncl->rotAngles[0]);
    
-   arm_matrix_instance_f32 rotMx;
-   arm_matrix_instance_f32 rotMy;
-   arm_matrix_instance_f32 rotM;
-   float32_t dataMx[9];
-   float32_t dataMy[9];
-   float32_t tempData[3];
+    arm_mat_vec_mult_f32(&rotMx, sIncl->dataIn, tempData);
    
-   arm_mat_init_f32(&rotMx,3,3,dataMx);
-   arm_mat_init_f32(&rotMy,3,3,dataMy);
-   arm_mat_init_f32(&rotM,3,3,sStruct->dataM);
+    sIncl->rotAngles[1] = asinf(tempData[0]);
+    dataMyInit(dataMy, sIncl->rotAngles[1]);
    
-   sStruct->data_in[0] = arm_sin_f32(pData[0]);
-   sStruct->data_in[1] = arm_sin_f32(pData[1]);
-   sStruct->data_in[2] = arm_sin_f32(pData[2]);
-   //угол вращения вокруг оси X равен углу Y инклинометра
-   sStruct->rot_angls[0] = pData[1];
-   dataMx_init(dataMx,sStruct->rot_angls[0]);
-   
-   arm_mat_vec_mult_f32(&rotMx,sStruct->data_in,tempData);
-   
-   sStruct->rot_angls[1] = asinf(tempData[0]);
-   dataMy_init(dataMy,sStruct->rot_angls[1]);
-   
-   arm_mat_mult_f32(&rotMx,&rotMy,&rotM); 
- }
+    arm_mat_mult_f32(&rotMy, &rotMx, &rotM); 
+}
+
 /**
  Тут находим и запоминаем угол вращения по Z когда подняли устройство
 **/
- void Incl_Data_Init_2(float32_t* pData, sInclData* sStruct){
-   
-   arm_matrix_instance_f32 rotMz;
-   arm_matrix_instance_f32 rotM;
-   arm_matrix_instance_f32 rotMtemp;
-   float32_t dataMz[9];
-   float32_t dataMtemp[9];
-   float32_t temp;
-   
-   arm_mat_init_f32(&rotMz,3,3,dataMz);
-   arm_mat_init_f32(&rotM,3,3,sStruct->dataM);
-   arm_mat_init_f32(&rotMtemp,3,3,dataMtemp);
-   
-   fixangl(pData, sStruct);
-   /**Первый вариант срабатывает при угле поворота по Z не больше чем на 45 градусов,второй — когда больше 45, но это уже фантастика
-   **/
-   if(fabsf(sStruct->data_out[0]) > fabsf(sStruct->data_out[1])){
-//    temp = sStruct->data_out[1]/sStruct->data_out[0];
-//    sStruct->rot_angls[2] = asinf(temp/sqrtf(1.0f+temp*temp));
-    sStruct->rot_angls[2] = atan2f(sStruct->data_out[1],sStruct->data_out[0]);
-   }
-   else{
-    temp = sStruct->data_out[0]/sStruct->data_out[1];
-    sStruct->rot_angls[2] = acosf(temp/sqrtf(1.0f+temp*temp));
-   }
-   
-   dataMz_init(dataMz,sStruct->rot_angls[2]);
-   arm_copy_f32(sStruct->dataM,dataMtemp,9);
-   arm_mat_mult_f32(&rotMtemp,&rotMz,&rotM);
-   
- }
+ void inclDataInit2(float32_t* inputAngles, sInclData* sIncl) {
+    arm_matrix_instance_f32 rotMz;
+    arm_matrix_instance_f32 rotM;
+    arm_matrix_instance_f32 rotMtemp;
+    float32_t dataMz[9];
+    float32_t dataMtemp[9];
+    float32_t temp;
+
+    arm_mat_init_f32(&rotMz, 3, 3, dataMz);
+    arm_mat_init_f32(&rotM, 3, 3, sIncl->dataM);
+    arm_mat_init_f32(&rotMtemp, 3, 3, dataMtemp);
+
+    fixAngles(inputAngles, sIncl);
+
+    // Первый вариант срабатывает при угле поворота по Z не больше, чем на 45 градусов, второй — когда больше 45 градусов
+    if (fabsf(sIncl->dataOut[0]) > fabsf(sIncl->dataOut[1])) {
+        sIncl->rotAngles[2] = atan2f(sIncl->dataOut[1], sIncl->dataOut[0]);
+    } else {
+        temp = sIncl->dataOut[0] / sIncl->dataOut[1];
+        sIncl->rotAngles[2] = acosf(temp / sqrtf(1.0f + temp * temp));
+    }
+
+    dataMzInit(dataMz, sIncl->rotAngles[2]);
+    arm_copy_f32(sIncl->dataM, dataMtemp, 9);
+    arm_mat_mult_f32(&rotMz, &rotMtemp, &rotM);
+}
  /**
   * @brief  Функции, инициализирующие массивы из 9 элементов для матриц вращения 3x3 на известные углы phi,theta,psi.
-  * @note   Если вращает куда то нетуда можете транспонировать матрицу, тогда будет вращать в другую сторону
+  * @note   Если вращает в неправильном направлении, можно транспонировать матрицу для изменения направления вращения.
   * @param[in]  input_angls     Указатель на первый элемент массива, состоящего из 9 элементов.
-  массив в дальнейшем будет использоваться для инициализации матрицы 3x3
-  * @param[out] output_angls    углы phi,theta,psi
+  * @param[out] output_angls    Углы phi,theta,psi
   */   
- static void dataMx_init(float32_t* pData, float32_t phi){
+ static void dataMxInit(float32_t* pData, float32_t phi){
    pData[0] = 1.0f;
    pData[1] = 0.0f;
    pData[2] = 0.0f;
@@ -112,7 +115,7 @@
    pData[7] = arm_sin_f32(phi);
    pData[8] = arm_cos_f32(phi);
  }
- static void dataMy_init(float32_t* pData, float32_t theta){
+ static void dataMyInit(float32_t* pData, float32_t theta){
    pData[0] = arm_cos_f32(theta);
    pData[1] = 0.0f;
    pData[2] = -arm_sin_f32(theta);
@@ -123,7 +126,7 @@
    pData[7] = 0.0f;
    pData[8] = arm_cos_f32(theta);
  }
- static void dataMz_init(float32_t* pData, float32_t psi){   
+ static void dataMzInit(float32_t* pData, float32_t psi){   
    pData[0] = arm_cos_f32(psi);
    pData[1] = arm_sin_f32(psi);
    pData[2] = 0.0f;

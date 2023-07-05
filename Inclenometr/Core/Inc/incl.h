@@ -49,7 +49,7 @@ extern SPI_HandleTypeDef hspi1;
 extern uint8_t Error_CRC;
 extern uint32_t one_sec_flag;
 
-uint16_t Incl_Data_SPI(uint32_t command, uint32_t delay_ms);
+void Incl_Data_SPI(uint32_t command, uint32_t delay_ms);
 void Incl_init(void);
 uint8_t calculate_crc(uint32_t Data);
 static uint8_t CRC8(uint8_t BitValue, uint8_t CRCSPI);
@@ -60,9 +60,9 @@ void Incl_Data_ANGL(float32_t* angls_buff);
 
 void parse_command(uint8_t* buffer, uint32_t buffer_size, uint8_t* command);
 
-int16_t filter_x(int16_t x);
-int16_t filter_z(int16_t x);
-int16_t filter_y(int16_t x);
+int32_t filter_x(int16_t x);
+int32_t filter_y(int16_t x);
+int32_t filter_z(int16_t x);
 
 //int16_t filter_Gx(int16_t x);
 //int16_t filter_Gy(int16_t x);

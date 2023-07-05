@@ -55,18 +55,9 @@ UART_HandleTypeDef huart2;
 
 static float32_t angls_grad[6];
 static float32_t angls_rad[3];
-static float32_t anglsmm[3];
-static float32_t delta;
-static float32_t delta2;
-
 static sInclData incl;
-
-static float32_t sinangl[3];
-
-static float32_t angls[6];
-
 uint32_t one_sec_flag;
-static uint32_t uart_count;
+//static uint32_t uart_count;
 
 //...........................................
 //ПЕРЕМЕННЫЕ ДЛЯ КНОПК
@@ -157,54 +148,26 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   Incl_init();
-  uint32_t success = 0;
-  uint32_t filtr_counter;
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
     //получаем значения с датчика
-    Incl_Data_ANGL(angls_grad);
-      if (success){
-        angls_rad[0] = gra_to_rad(angls_grad[0]);
-        angls_rad[1] = gra_to_rad(angls_grad[1]);
-        angls_rad[2] = gra_to_rad(angls_grad[2]);
-      }
-      else{
-        for(uint32_t i = 0; i < 3; i++){
+      Incl_Data_ANGL(angls_grad);
+      for(uint32_t i = 0; i < 3; i++)
           angls_rad[i] = gra_to_rad(angls_grad[i]);
-//        anglsmm[i] = tanf(angls_rad[i]) * 1600;
-//        g[i] = angls_grad[i+3];
-//          sinangl[i] = arm_sin_f32(angls_rad[i]);
-        }
-      }        
     // события по кнопке
     if (key_press == 1){
       key_press = 0; 
       //инициализация матрицы поворота по x y
-      Incl_Data_Init_1(angls_rad,&incl);
+      inclDataInit1(angls_rad,&incl);
     }
     else if (key_press == 2){
       key_press = 0;
-      Incl_Data_Init_2(angls_rad,&incl);
-    }   
-    else if (key_press == 3){
-      key_press = 0;
-      delta = angls_rad[0];
-      delta2 = incl.data_out[0];
-    }
-    else if (key_press == 4){
-      key_press = 0;
-      delta = angls_rad[0] - delta;
-      delta /= atan2f(160.0f,1600.0f);
-      
-      delta2 = incl.data_out[0] - delta2;
-      delta2 /= atan2f(160.0f,1600.0f);
-      success = 1; 
-    }
-    
-    fixangl(angls_rad, &incl);
+      inclDataInit2(angls_rad,&incl);
+    }    
+    fixAngles(angls_rad, &incl);
     
 //    if (key_press == 3 && uart_count && (one_sec_flag >=32)){
 //      uart_count = (uart_count+1)%101;
@@ -227,20 +190,9 @@ int main(void)
 //      uart_count = 1;
 //      one_sec_flag = 0;
 //    }
-
-//      char range_str[100];
-//      angls[0] = incl.data_out[0];
-//      sprintf(range_str,"%0.20f\t",angls[0]);
-//      HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
-      
       char range_str[100];
-      sprintf(range_str,"%f\t%f\n",delta,delta2);
+      sprintf(range_str,"%0.20f\t",incl.dataOut[0]);
       HAL_UART_Transmit(&huart2,(uint8_t*)range_str,strlen(range_str),100);
-      
-      
-//    angls[3] = asin(sinangl_31[0]) * 180.0f/3.14;
-//    angls[4] = asin(sinangl_31[1]) * 180.0f/3.14;
-//    angls[5] = asin(sinangl_31[2]) * 180.0f/3.14;     
 }
   /* USER CODE END 3 */
 }
@@ -438,39 +390,41 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-//***************************
-//***************************
-static void debounce(volatile uint32_t * pres_px, volatile uint32_t * cnt_px, volatile uint32_t * prev_px, uint32_t GPIOx_IDR)
+/**
+ * Избавляется от дребезга сигнала на GPIO пине.
+ * @param pres_px Указатель на переменную, которая будет установлена в 1 при срабатывании без дребезга.
+ * @param cnt_px Указатель на переменную, содержащую текущий счетчик дребезга.
+ * @param prev_px Указатель на переменную, содержащую предыдущее значение GPIO пина.
+ * @param GPIOx_IDR Значение GPIO пина.
+ */
+static void debounce(volatile uint32_t* pres_px, volatile uint32_t* cnt_px, volatile uint32_t* prev_px, uint32_t GPIOx_IDR)
 {
-  uint32_t cur_px = GPIOx_IDR;
-	if (cur_px != *prev_px) 
+    uint32_t cur_px = GPIOx_IDR;
+    
+    // Проверяем, отличается ли текущее значение пина от предыдущего
+    if (cur_px != *prev_px)
     {
-      (*cnt_px)++;
-      if (*cnt_px >= 4)
-      {
-        *prev_px = cur_px;
-        *cnt_px = 0;
-        if(cur_px == 0)
+        (*cnt_px)++;
+        
+        // Если счетчик дребезга достигает значения 4, значит дребезг прекратился
+        if (*cnt_px >= 4)
         {
-          *pres_px = 1;
+            *prev_px = cur_px;
+            *cnt_px = 0;
+            
+            // Если текущее значение пина равно 0, устанавливаем pres_px в 1
+            if (cur_px == 0)
+            {
+                *pres_px = 1;
+            }
         }
-      }
     }
     else
     {
+        // Если текущее значение пина равно предыдущему, обнуляем счетчик дребезга
         *cnt_px = 0;
     }
 }
-
-
-
-//***************************
-//***************************
-
-//***************************
-//***************************
-
 /* USER CODE END 4 */
 
 /**
